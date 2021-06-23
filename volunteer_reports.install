@@ -1,0 +1,46 @@
+<?php
+	/**
+	 * Implements hook_install()
+	 */
+	function volunteer_reports_install(){
+		
+	
+	}
+
+  
+	function volunteer_reports_enable() {
+		$newRoles = array( 'Reports');
+		foreach ($newRoles as $r){
+			if(!user_role_load_by_name($r)){
+				$role = new stdClass();
+				$role->name = $r;
+				user_role_save($role);
+			}
+		}
+	}	
+	 
+    // hook_uninstall() implementation
+    // - this is where you add the database tables to delete on un-install of the 
+    //   custom module
+    //
+    function volunteer_reports_uninstall(){
+
+		//delete the roels associated with this module
+		//
+		delete_volunteer_reports_roles();
+		
+		// Clear the user access cache.
+		drupal_static_reset('user_access');
+		drupal_static_reset('user_role_permissions');
+    } 
+	
+    // Delete the roles created for this custom module
+    // 
+	//
+    function delete_volunteer_reports_roles() {
+		$or = db_or()->condition('name', 'Reports');
+		db_delete('role')->condition($or)->execute();
+
+	}	
+
+?>

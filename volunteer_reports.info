@@ -1,0 +1,4 @@
+name = Volunteer_Reports
+description = "Volunteer Reports"
+core = 7.x
+files[] = volunteer_reports.module

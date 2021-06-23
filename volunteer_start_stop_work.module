@@ -1,0 +1,791 @@
+<?php
+
+/**
+ * @file
+ * volunteer_start_stop_work - volunteer_start_stop_work
+ * VERSION: 1.0 
+ * Last Update Date: 09-11-2015 3:45 PM
+ * By [Mike Chase]
+ *
+ */
+
+/**
+ * Implements hook_help();
+ */
+function volunteer_start_stop_work_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#volunteer_start_stop_work': {
+      $rtn_val = '<h3>' . t('About') . '</h3>';
+      $rtn_val .= '<p>' . t('Volunteer Start Stop Work. Volnteer shop time clock and reporting.') . '</p>';
+      return $rtn_val;
+      break;
+    }
+  }
+}
+
+// Implements hook_menu();
+//
+//
+function volunteer_start_stop_work_menu(){
+	
+	$items = array();
+ 	$i = 1;
+ 	
+	
+	//Find Volunteer Start and Stop Name Search
+	//
+  	$items['find_volunteers_by_name_form'] = array(
+			'title' => 'Find Volunteer By Name',
+			'description' => 'A form to find volunteers by name.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('find_volunteers_by_name_form'), 
+			'access callback' =>  'kiosk_access',
+			'weight' => $i++,
+		 );		
+
+	$items['select_volunteer_by_name_form'] = array(
+			'title' => 'Select Volunteer By Name',
+			'description' => 'Select volunteer by name.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('select_volunteer_by_name_form'), 
+			'access callback' =>  'kiosk_access',
+			'weight' => $i++,
+		 );		
+	
+ 	//Find Working Volunteers Search
+	//
+  	$items['select_working_volunteer_form'] = array(
+			'title' => 'Find Working Volunteers',
+			'description' => 'A form to find working volunteers.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('select_working_volunteer_form'), 
+			'access callback' =>  'kiosk_access',
+			'weight' => $i++,
+		 );		
+
+ 	//Find Not-Working Volunteers Search
+	//
+	$items['select_not_working_volunteer_form'] = array(
+			'title' => 'Find Not Working Volunteers',
+			'description' => 'A form to find Not-Working Volunteers.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('select_not_working_volunteer_form'), 
+			'access callback' =>  'kiosk_access',
+			'weight' => $i++,
+		 );	
+	
+	return $items;
+}
+
+
+
+
+
+
+// *************** START ************
+// Volunteer Start and Stop Work Forms 
+//
+//
+
+//Function: BY NAME (WORKING AND NOT-WORKING)
+//
+//
+function find_volunteers_by_name_form($form, &$form_state) {
+	
+	//Clear out session vars on Find 
+	//
+	$_SESSION['VolunteerFound'] = 0;
+	$_SESSION['VolunteerID'] = "";
+	$_SESSION['VolunteerSearchName'] = "";
+	$_SESSION['VolunteerName'] = "";
+	$_SESSION['VolunteerPhone'] = "";
+	$_SESSION['ActiveFlag'] = "";
+    $_SESSION['SelectedVolunteerID'] = 0;
+ 
+	//Get Volunteer Info
+	//
+	//$sms_provider_dropdown = "";
+	//get_sms_provider_info($sms_provider_array);
+	
+	$form['volunteerSearchName'] = array(
+		'#type' => 'textfield',
+		'#title' => 'Enter the first few letters of you name',
+		'#size' => 20,
+		'#maxlength' => 10,
+		'#required' => FALSE, //make this field required
+		'#description' => 'Enter only letters.',
+	);
+
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Find!'),
+	);
+	
+	return $form;
+}
+
+
+//Function:  
+//
+//
+function  find_volunteers_by_name_form_validate($form, &$form_state) {
+ 	
+	$formError = false;
+ 	
+	$_SESSION['VolunteerSearchName'] = '';
+	
+	$volunteerSearchName = $form_state['values']['volunteerSearchName'];
+	$_SESSION['VolunteerSearchName'] = $volunteerSearchName;
+	
+	//Check that both volunteerName is blank
+    //
+	if ( IsNullOrEmptyString($volunteerSearchName)  ) {
+		form_set_error('volunteerSearchName', t('A non-empty Volunteer Name is required.'));
+		$formError = true;
+	}	
+
+	if ( $formError != true ) {
+
+		$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+			
+		$results = $query
+			->fields('v', array('VolunteerID', 'VolunteerName',))		
+			->condition('VolunteerName', '%' . db_like($volunteerSearchName) . '%', 'LIKE')		
+			->execute();
+		
+		$recordFlag = FALSE;
+		$errorCode = 0;  //0 = No Error, 2 = Unauthorized access by SM SClient
+		
+		$rtn_val = '<table width=\'100&%\'>';
+		
+		//Iterating through the query results using fetchAssoc
+		//
+	    $row = $results->fetchAssoc();	 		 	
+
+		if (empty($row)) {
+			drupal_set_message( t('Search did not find any volunteers with this partial name.'));
+			return;
+		}
+		
+		$keys = array_keys($row);
+		$num = $row[$keys[0]];
+		
+		$_SESSION['VolunteerFindCount'] = $num;
+		
+		//drupal_set_message("Query Count: $num");
+		
+		if (empty($num)) {
+			drupal_set_message("Volunteer with this partial name not found or Volunteer table is empty.");
+		}
+		else {
+			//drupal_set_message("Query Count: $num");
+
+			if ( $num > 0 ) {
+			
+				//drupal_set_message(t('Volunteers found. '));
+	 		
+				//This is the URL of the update sms client form
+				//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+				//Set a var to the node_id and force a redirect
+				//
+				$new_node_id = "select_volunteer_by_name_form";
+				$form_state['redirect'] = $new_node_id;
+			}
+		}
+	}
+}
+
+//
+// 
+//
+function select_volunteer_by_name_form($form, &$form_state) {
+
+	$volunteerSearchName = '';
+
+	if ( ! isset (  $_SESSION['VolunteerSearchName'] ) ) {
+		 $_SESSION['VolunteerSearchName'] = '';
+	}
+	 
+	if ( !is_null ( $_SESSION['VolunteerSearchName'] ) ) {
+	
+		$volunteerSearchName = $_SESSION['VolunteerSearchName'];
+	}
+	
+	$query = db_select('volunteers', 'v')->orderBy('volunteerName', 'ASC');
+			
+	$results = "";
+	
+	if ( strlen($volunteerSearchName) > 0 ) {
+		$results = $query
+			->fields('v', array('VolunteerID', 'VolunteerName',))		
+			->condition('VolunteerName', '%' . db_like($volunteerSearchName) . '%', 'LIKE')		
+			->execute();
+	}
+	else {	
+		$results = $query
+			->fields('v', array('VolunteerID', 'VolunteerName',))		
+			->execute();	
+	}
+		
+	$recordFlag = FALSE;
+	$errorCode = 0;  //0 = No Error, 2 = Unauthorized access by SM SClient
+				
+	//Iterating through the query results using fetchAssoc
+	//
+	$volArray = array();
+		
+	while ( $record = $results->fetchAssoc() ) {
+		
+		$volunteerNameFound = $record['VolunteerName'];
+		$volunteerIDFound = $record['VolunteerID'];
+		
+		//drupal_set_message( " $volunteerNameFound - $volunteerIDFound  ");
+		//TODO: Check each vlunteer - if they are working, then append STRING TAG to name
+		// If not working 
+		
+		$isWorking = check_for_existing_volunteer_hours_record( $volunteerIDFound);
+
+		if ( $isWorking ) {		
+			$volArray += array($volunteerIDFound => " $volunteerNameFound - IS WORKING" );	
+		}
+		else {
+			$volArray += array($volunteerIDFound => "$volunteerNameFound - IS NOT WORKING" );	
+		}	
+	}
+
+	// the drupal checkboxes form field definition
+	//
+	$form['volnteerNameCheckbox'] = array(
+  		'#title' => t('Volunteer Name Select'),
+  		'#type' => 'checkboxes',
+  		'#description' => t('Select the volunteer name to check-in or check-out.'),
+  		'#options' => $volArray,
+  		'#tree' => TRUE,
+  		'#required' => TRUE,
+	);
+
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('SUBMIT'),
+	);
+	
+		
+	return $form;
+
+}
+
+
+//Function:  select_volunteer_login_logout_form_validate
+//
+//
+function  select_volunteer_by_name_form_validate($form, &$form_state) {
+ 	
+	$formError = false;
+	$_SESSION['SelectedVolunteerID'] = 0;
+	
+    $checked = array_filter($form_state['values']['volnteerNameCheckbox']);
+    
+    $checkedCount = count($checked);
+    
+    if (  $checkedCount != 1 ) {
+ 		form_set_error('volnteerNameCheckbox', t('Please select one volunteer name.'));
+		$formError = true;
+    }
+
+	// Both key and Value ar the Voulnteer ID 
+	//
+	if ( $formError != true ) {
+
+	    foreach ($checked as $key => $value) {
+ 			
+ 			//drupal_set_message( " KEY: $key  VALUE:  $value  ");
+ 			
+ 			$_SESSION['SelectedVolunteerID'] = $key;				
+		}    
+	}	
+}
+
+//Function:  select_volunteer_by_name_form_submit
+//
+//
+function  select_volunteer_by_name_form_submit($form, &$form_state) {
+ 	
+	$selectedVolunteerID = $_SESSION['SelectedVolunteerID'];	
+ 	
+	//Check for existing volunteer hours record
+	//
+	if ( $selectedVolunteerID > 0 ) {
+	
+		$recExists = check_for_existing_volunteer_hours_record( $selectedVolunteerID );
+			
+			
+		// WRITE ENTRY INTO TIME TABLE if one doesnt already exist
+		//
+		if ( $recExists != TRUE ) {
+		
+			insert_volunteer_start_hours( $selectedVolunteerID );
+		}
+		else {
+			// Volunteer Already checked in so check out
+			//
+			update_volunteer_end_hours( $selectedVolunteerID );
+		}
+	}	
+	   
+	// Redirtect back to search form
+	// return $form;
+	//
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	$new_node_id = "find_volunteers_by_name_form";
+	$form_state['redirect'] = $new_node_id;
+}
+
+//
+//
+//
+// **** END*** select_volunteer_by_name_form
+
+
+// *** START *** 
+//
+//
+function select_working_volunteer_form($form, &$form_state) {
+
+	$volunteerSearchName = '';
+
+	if ( ! isset (  $_SESSION['VolunteerSearchName'] ) ) {
+		 $_SESSION['VolunteerSearchName'] = '';
+	}
+	 
+	if ( !is_null ( $_SESSION['VolunteerSearchName'] ) ) {
+	
+		$volunteerSearchName = $_SESSION['VolunteerSearchName'];
+	}
+	
+	$query = db_select('volunteers', 'v')->orderBy('volunteerName', 'ASC');
+	$results = $query
+			->fields('v', array('VolunteerID', 'VolunteerName',))		
+			->execute();
+			
+	$recordFlag = FALSE;
+	$errorCode = 0;  //0 = No Error, 2 = Unauthorized access by SM SClient
+				
+	//Iterating through the query results using fetchAssoc
+	//
+	$volArray = array();
+		
+	while ( $record = $results->fetchAssoc() ) {
+		
+		$volunteerNameFound = $record['VolunteerName'];
+		$volunteerIDFound = $record['VolunteerID'];
+		
+		//drupal_set_message( " $volunteerNameFound - $volunteerIDFound  ");
+		//TODO: Check each vlunteer - if they are working, then append STRING TAG to name
+		// If not working 
+		
+		$isWorking = check_for_existing_volunteer_hours_record( $volunteerIDFound);
+
+		if ( $isWorking ) {		
+			$volArray += array($volunteerIDFound => " $volunteerNameFound - IS WORKING" );	
+		}
+		//else {
+		//	$$volArray += array($volunteerIDFound => "$volunteerNameFound - IS NOT WORKING" );	
+		//}	
+	}
+
+	// the drupal checkboxes form field definition
+	//
+	$form['workingVolunteerNameCheckbox'] = array(
+  		'#title' => t('Volunteer Name Select'),
+  		'#type' => 'checkboxes',
+  		'#description' => t('Select the volunteer name to check-out (stop working).'),
+  		'#options' => $volArray,
+  		'#tree' => TRUE,
+  		'#required' => TRUE,
+	);
+
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('SUBMIT'),
+	);
+	
+		
+	return $form;
+}
+
+//Function:  select_working_volunteer_login_logout_form_validate
+//
+//
+function  select_working_volunteer_form_validate($form, &$form_state) {
+ 	
+	$formError = false;
+	$_SESSION['SelectedVolunteerID'] = 0;
+	
+    $checked = array_filter($form_state['values']['workingVolunteerNameCheckbox']);
+    
+    $checkedCount = count($checked);
+    
+    if (  $checkedCount != 1 ) {
+ 		form_set_error('workingVolunteerNameCheckbox', t('Please select one volunteer name.'));
+		$formError = true;
+    }
+
+	// Both key and Value ar the Voulnteer ID 
+	//
+	if ( $formError != true ) {
+
+	    foreach ($checked as $key => $value) {
+ 			
+ 			//drupal_set_message( " KEY: $key  VALUE:  $value  ");
+ 			
+ 			$_SESSION['SelectedVolunteerID'] = $key;				
+		}    
+	}	
+}
+
+//Function:  select_working_volunteer_login_logout_form_submit
+//
+//
+function  select_working_volunteer_form_submit($form, &$form_state) {
+ 	
+	$selectedVolunteerID = $_SESSION['SelectedVolunteerID'];	
+ 	
+	//Check for existing volunteer hours record
+	//
+	if ( $selectedVolunteerID > 0 ) {
+	
+		$recExists = check_for_existing_volunteer_hours_record( $selectedVolunteerID );
+			
+			
+		// WRITE ENTRY INTO TIME TABLE if one doesnt already exist
+		//
+		if ( $recExists != TRUE ) {
+		
+			insert_volunteer_start_hours( $selectedVolunteerID );
+		}
+		else {
+			// Volunteer Already checked in so check out
+			//
+			update_volunteer_end_hours( $selectedVolunteerID );
+		}
+	}	
+	   
+	// Redirtect back to search form
+	// return $form;
+	//
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	//$new_node_id = "find_working_volunteers_by_name_form";
+	//$form_state['redirect'] = $new_node_id;
+}
+
+
+//
+//
+// **** END ***
+
+
+// *** START *** NOT WORKING
+//
+//
+function select_not_working_volunteer_form($form, &$form_state) {
+
+	$volunteerSearchName = '';
+
+	if ( ! isset (  $_SESSION['VolunteerSearchName'] ) ) {
+		 $_SESSION['VolunteerSearchName'] = '';
+	}
+	 
+	if ( !is_null ( $_SESSION['VolunteerSearchName'] ) ) {
+	
+		$volunteerSearchName = $_SESSION['VolunteerSearchName'];
+	}
+	
+	$query = db_select('volunteers', 'v')->orderBy('volunteerName', 'ASC');
+	$results = $query
+			->fields('v', array('VolunteerID', 'VolunteerName',))		
+			->execute();
+				
+	$recordFlag = FALSE;
+	$errorCode = 0;  //0 = No Error, 2 = Unauthorized access by SM SClient
+				
+	//Iterating through the query results using fetchAssoc
+	// 
+	$volArray = array();
+		
+	while ( $record = $results->fetchAssoc() ) {
+		
+		$volunteerNameFound = $record['VolunteerName'];
+		$volunteerIDFound = $record['VolunteerID'];
+		
+		//drupal_set_message( " $volunteerNameFound - $volunteerIDFound  ");
+		//TODO: Check each vlunteer - if they are working, then append STRING TAG to name
+		// If not working 
+		
+		$isWorking = check_for_existing_volunteer_hours_record( $volunteerIDFound);
+
+		if ( $isWorking ) {		
+		//	$volArray += array($volunteerIDFound => " $volunteerNameFound - IS WORKING" );	
+		}
+		else {
+			$volArray += array($volunteerIDFound => "$volunteerNameFound - IS NOT WORKING" );		
+		}	
+	}
+
+	// the drupal checkboxes form field definition
+	//
+	$form['notWorkingVolunteerNameCheckbox'] = array(
+  		'#title' => t('Volunteer Name Select'),
+  		'#type' => 'checkboxes',
+  		'#description' => t('Select the volunteer name to check-in (start working).'),
+  		'#options' => $volArray,
+  		'#tree' => TRUE,
+  		'#required' => TRUE,
+	); 
+
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('SUBMIT'),
+	);
+	
+		
+	return $form;
+}
+
+//Function:  select_not_working_volunteer_login_logout_form_validate
+//
+//
+function  select_not_working_volunteer_form_validate($form, &$form_state) {
+ 	
+	$formError = false;
+	$_SESSION['SelectedVolunteerID'] = 0;
+	
+    $checked = array_filter($form_state['values']['notWorkingVolunteerNameCheckbox']);
+    
+    $checkedCount = count($checked);
+    
+    if (  $checkedCount != 1 ) {
+ 		form_set_error('notWorkingVolunteerNameCheckbox', t('Please select one volunteer name.'));
+		$formError = true;
+    }
+
+	// Both key and Value ar the Voulnteer ID 
+	//
+	if ( $formError != true ) {
+
+	    foreach ($checked as $key => $value) {
+ 			
+ 			//drupal_set_message( " KEY: $key  VALUE:  $value  ");
+ 			
+ 			$_SESSION['SelectedVolunteerID'] = $key;				
+		}    
+	}	
+}
+
+//Function:  select_not_working_volunteer_login_logout_form_submit
+//
+//
+function  select_not_working_volunteer_form_submit($form, &$form_state) {
+ 	
+	$selectedVolunteerID = $_SESSION['SelectedVolunteerID'];	
+ 	
+	//Check for existing volunteer hours record
+	//
+	if ( $selectedVolunteerID > 0 ) {
+	
+		$recExists = check_for_existing_volunteer_hours_record( $selectedVolunteerID );
+					
+		// WRITE ENTRY INTO TIME TABLE if one doesnt already exist
+		//
+		if ( $recExists != TRUE ) {
+		
+			insert_volunteer_start_hours( $selectedVolunteerID );
+		}
+		else {
+			// Volunteer Already checked in so check out
+			//
+			update_volunteer_end_hours( $selectedVolunteerID );
+		}
+	}	
+	   
+	// Redirtect back to search form
+	// return $form;
+	//
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	//$new_node_id = "find_not_working_volunteers_by_name_form";
+	//$form_state['redirect'] = $new_node_id;
+}
+
+
+//
+//
+// **** END ***
+
+
+
+
+//Check for existing Volunteer Hours Record
+//
+//
+function check_for_existing_volunteer_hours_record( $volunteerID ) {
+	
+	$recordFound = FALSE;
+	$volunteerHoursID = 0;
+	
+	$startDate = date('Y-m-d');
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $startDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+	
+	$query = db_select('volunteer_hours', 'vh')->isNull('EndDateTime')->orderBy('VolunteerHoursID', 'ASC');
+	$query->join('volunteers', 'v', 'v.VolunteerID = vh.VolunteerID');
+	$results = $query
+		->fields('vh', array('VolunteerHoursID', 'StartDateTime', 'EndDateTime'))
+		->fields('v', array('VolunteerName'))			
+		->condition('vh.VolunteerID', $volunteerID,'=')
+		->condition('StartDateTime', $dateS1, '>=')
+		->condition('StartDateTime', $dateS2, '<=') 
+		->execute();			
+	
+	while($record = $results->fetchAssoc()) {	 		 	
+					
+			$volunteerHoursID  = $record['VolunteerHoursID'];
+			
+			$vName = $record['VolunteerName'];
+			$sTime = $record['StartDateTime'];
+			$eTime  = $record['EndDateTime'];
+				
+			//drupal_set_message("$volunteerHoursID -  $volunteerID - $sTime - $eTime");
+
+			$_SESSION['VolunteerName'] = $vName;
+
+			$recordFound = TRUE;
+    }
+    
+    return $recordFound;
+
+ }
+
+//Function: insert_volunteer_start_hours
+// This funciton inserts the sms client data into the database table.
+//
+function insert_volunteer_start_hours( $volunteerID  ) {
+
+	$startDate = date('Y-m-d H:i:s');
+	
+	$nid = db_insert('volunteer_hours') 
+		 ->fields(array( 
+			'VolunteerID' => $volunteerID,
+			'StartDateTime' => $startDate,
+		  ))
+		  ->execute(); 
+	  
+	  if ($nid > 0 ) {
+		  // $name = $_SESSION['VolunteerName'];
+		  //
+		  //Lookup volunteer name using volunteerID
+		  //
+		  $VolunteerName = get_volunteer_name_using_volunteer_id($volunteerID );
+		
+		  $msg = $VolunteerName . " has started a shift at the shop";
+		  drupal_set_message($msg);
+	  }
+}
+
+
+//Function: update_volunteer_end_hours
+// This funciton updates the volunteer_hours adding in the EndDateTime
+//
+function update_volunteer_end_hours( $volunteerID ) {
+	
+	$recordFound = FALSE;
+	$volunteerHoursID = 0;
+	
+	$endDateTime = date('Y-m-d H:i:s');
+	$startDate = date('Y-m-d');
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $startDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+		
+	$query = db_select('volunteer_hours', 'vh')->isNull('EndDateTime')->orderBy('VolunteerHoursID', 'ASC');
+	$query->join('volunteers', 'v', 'v.VolunteerID = vh.VolunteerID');
+	$results = $query
+		->fields('vh', array('VolunteerHoursID', 'StartDateTime', 'EndDateTime'))
+		->fields('v', array('VolunteerName'))			
+		->condition('vh.VolunteerID', $volunteerID,'=')
+		->condition('StartDateTime', $dateS1, '>=') 
+		->condition('StartDateTime', $dateS2, '<=') 
+		->execute();			
+	
+	while($record = $results->fetchAssoc()) {	 		 	
+					
+			$volunteerHoursID  = $record['VolunteerHoursID'];
+			
+			$vName = $record['VolunteerName'];
+			$sTime = $record['StartDateTime'];
+			$eTime  = $record['EndDateTime'];
+				
+			//drupal_set_message("$volunteerHoursID -  $volunteerID - $sTime - $eTime");
+
+			$recordFound = TRUE;
+
+    }
+
+	if ( $recordFound  ) {
+	
+		$num_updated = db_update('volunteer_hours')
+			->fields( array('EndDateTime' => $endDateTime,) )
+			->condition('VolunteerHoursID', $volunteerHoursID, '=')	
+			->execute();
+		
+		//drupal_set_message($dateS2);	
+	  
+	  	if ($num_updated > 0 ) {
+			drupal_set_message("$vName :  $volunteerID has ended their shift at the shop");
+	    }
+	    else {
+	    	drupal_set_message( t('RECORD NOT Update successfully 1') );
+	    }
+   }
+   else
+	  {
+		  drupal_set_message( t('Volunteer already checked out') );
+	  }
+
+
+}
+
+
+
+//Implementation of hook_permission()
+//
+//
+function volunteer_start_stop_work_permission() {
+  return array(
+    'administer my module' => array(
+      'title' => t('Administer Volunteer Start Stop Work'),
+      'description' => t('Perform administration tasks for  Volunteer Start Stop Work'),
+    ),
+  );
+}
+
+
+

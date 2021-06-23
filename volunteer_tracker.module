@@ -1,0 +1,1797 @@
+<?php
+
+/**
+ * @file
+ * volunteer_tracker - volunteer_tracker
+ * VERSION: 6.0 
+ * Last Update Date: 09-11-2015 3:45 PM
+ * By [Mike Chase]
+ *
+ */
+
+/**
+ * Implements hook_help();
+ */
+function volunteer_tracker_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#volunteer_tracker': {
+      $rtn_val = '<h3>' . t('About') . '</h3>';
+      $rtn_val .= '<p>' . t('Volunteer Ttracker. Volnteer shop time clock and reporting.') . '</p>';
+      return $rtn_val;
+      break;
+    }
+  }
+}
+
+// Implements hook_menu();
+//
+//
+function volunteer_tracker_menu(){
+	
+	$items = array();
+ 	$i = 10;
+ 	
+ 	//About this module
+ 	//  
+	$items['about_volunteer_tracker'] = array(
+	    'title'            => t('About the volunteer tracker custom module'),
+	    'page callback'    => 'volunteer_tracker_custom_module_output',
+        'access callback'  => 'restricted_access',
+	    'access arguments' => array('access content'),
+		'weight' => $i++,
+	    );
+	
+ 	//Item #2 - Volunteer Requset Login user name and access code 
+ 	//  - Volunteer enters name and mobile or Cell and we send them 
+ 	//    a URL link to the site to update their information
+ 	//
+ 	//$items['request_access_code_form'] = array(
+	//    'title'         	=> t('Volunteer Request Access code'),
+	//	'description' 		=> 'A form for volunteers to request a site access code.',
+	//	'page callback' 	=> 'drupal_get_form',
+	//	'page arguments' 	=> array('request_access_code_form'), 
+	//	'access callback'	=>  'unrestricted_access',
+	//	'weight' => $i++,
+	//);
+
+ 	//Item #3 - Volunteer Logon  
+ 	//  - Volunteer enters access code to gain access to & upadte their records 
+ 	//   
+ 	//
+ 	//$items['remote_login_form'] = array(
+	//    'title'         	=> t('Volunteer Remote Login'),
+	//	'description' 		=> 'A form for volunteers to login.',
+	//	'page callback' 	=> 'drupal_get_form',
+	//	'page arguments' 	=> array('remote_login_form'), 
+	//	'access callback'	=>  'unrestricted_access',
+	//	'weight' => $i++,
+	//);
+		
+	//Display table data
+	//
+	$items['display_volunteers_List'] = array(
+			'title'            => t('Display All Volunteers'),
+			'page callback'    => 'display_volunteers_List',
+			'access callback'  => 'recy_admin_access',
+			'access arguments' => array('access content'),
+			'weight' => $i++,
+	    );	
+	//
+	//	
+	$items['display_volunteer_hours'] = array(
+			'title'            => t('Display Volunteer Hours'),
+			'page callback'    => 'display_volunteer_hours',
+			'access callback'  => 'recy_admin_access',
+			'access arguments' => array('access content'),
+			'weight' => $i++,
+	    );	
+	  
+	  
+	//add_volunteer_form
+	//
+  	$items['add_volunteer_form'] = array(
+			'title' => 'Add Volunteer Form',
+			'description' => 'A form to add an volunteers.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('add_volunteer_form'), 
+			'access callback' =>  'recy_admin_access',
+			'weight' => $i++,
+		 );
+		 
+	//Delete Volunteers Data
+    //	  
+ 	//$items['volunteers_table_truncate'] = array(
+	//		'title'            => t('Delete Volunteers Data'),
+	//		'page callback'    => 'volunteers_truncate_table',
+	//		'access callback'  => 'restricted_access',
+	//		'access arguments' => array('access content'),
+	//		'weight' => $i++,
+	//   );
+	    	 
+	//Delete Volunteer Hours Data
+    //	  
+ 	//$items['volunteer_hours_truncate_table'] = array(
+	//		'title'            => t('Delete Volunteer Hours Data'),
+	//		'page callback'    => 'volunteer_hours_truncate_table',
+	//		'access callback'  => 'restricted_access',
+	//		'access arguments' => array('access content'),
+	//		'weight' => $i++,
+	//    );
+		
+	//Delete ALL Volunteer Test Data
+    //	  
+ 	$items['truncate_all_volunteer_test_data'] = array(
+			'title'            => t('Delete All Volunteer Test Data'),
+			'page callback'    => 'truncate_all_volunteer_test_Data',
+			'access callback'  => 'restricted_access',
+			'access arguments' => array('access content'),
+			'weight' => $i++,
+	    );
+                                                  	
+	//Load Test data
+    //	  
+ 	$items['load_all_volunteer_test_data'] = array(
+			'title'            => t('Add All Volunteer Test Data'),
+			'page callback'    => 'load_all_volunteer_test_data',
+			'access callback'  => 'restricted_access',
+			'access arguments' => array('access content'),
+			'weight' => $i++,
+	    );	
+		
+	//
+	//
+	$items['close_out_orphan_hours_records'] = array(
+			'title'            => t('Close out open volunteer Hours records'),
+			'page callback'    => 'close_out_orphan_hours_records',
+	//		'access callback'  => 'recy_admin_access',
+			'access callback'  => 'kiosk_access',
+			'access arguments' => array('access content'),
+			'weight' => $i++,
+	     );	
+	 	      
+
+	    		 
+	 // SMS Provider Forms
+	 //
+  	 //$items['add_sms_provider_form'] = array(
+	//		'title' => 'Add SMS Provider Form',
+	//		'description' => 'A form to add an SMS Provider.',
+	//		'page callback' => 'drupal_get_form',
+	//		'page arguments' => array('add_sms_provider_form'), 
+	//		'access callback' =>  'restricted_access',
+	//		'weight' => $i++,
+     //    );
+         
+	// $items['display_sms_providers'] = array(
+	//		'title'            => t('List SMS Providers'),
+	//		'page callback'    => 'display_sms_providers_output',
+	//		'access callback'  => 'restricted_access',
+	//		'access arguments' => array('access content'),
+	//		'weight' => $i++,
+	//  );	    
+	
+
+	return $items;
+}
+
+/**
+* Function: unrestricted_access
+* Call this function to give your Navigation Menu item unrestricted access.
+* Unrestricted access means all users can see the Navigation menu item
+* even unregistered (AKA: anonymous) users
+*/
+function unrestricted_access() {
+	return TRUE;
+}
+
+/**
+* Function: restricted_access
+* Call this function to give your Navigation Menu item restricted access. 
+* Restricted access means that only Registered users whoa re Administrators can see it.
+* In Drupal a registered ueser is a user that has a valid account (AKA: Login).
+* The Admin (or user 0 account) is a registered user AND Administrator.
+* The $user global object has the user ID (uid) and an the users array of roles
+*/
+function restricted_access() {  
+	global $user;
+
+	if ( $user->uid ) {  // Logged in user is a site administrator
+	
+		//var_dump( $user->roles );
+		
+		if (in_array('administrator', $user->roles)) {
+				return true;
+		}
+		else {
+			return false;	
+		}
+	}
+	else {   // Not logged in
+		return false;
+	}
+}
+
+
+/**
+* Function: recy_admin_access
+* Call this function to give your Navigation Menu item recyclery admin access. 
+* RECY Admin access means that RECY Admin and above can see it.
+*
+*/
+function recy_admin_access() {  
+	
+	global $user;
+
+	$_SESSION['IsRECYAdmin'] = false;
+	
+	if ( $user->uid ) {  // Logged in user - and Role is at least RECY Admin or User 1 the site admin
+	
+		if (in_array('administrator', $user->roles)) {
+			$rtn = true;
+		}
+		else if (in_array('RECY Admin', $user->roles)) {
+			$_SESSION['IsRECYAdmin'] = true;
+			$rtn = true;
+		}
+		else {
+			$rtn = false;	
+		}
+	}
+	else {   // Not logged in
+		$rtn = false;
+	}
+	
+	return $rtn;
+}
+
+/**
+* Function: kiosk_access
+* Call this function to give your Navigation Menu item kiosk access. 
+* Kiosk access means that kiosk and above can see it.
+*
+*/
+function kiosk_access() {  
+	
+	global $user;
+
+	$_SESSION['IsKiosk'] = false;
+	$_SESSION['ClientUserMail'] = '';
+	
+	if ( $user->uid ) {  // Logged in user - and Role is at least Kiosk or User 1 the site admin
+	
+		if (in_array('administrator', $user->roles)) {
+			$rtn = true;
+		}
+		else if (in_array('RECY Admin', $user->roles)) {
+			$rtn = true;
+		}	
+		else if (in_array('Kiosk', $user->roles)) {
+			$_SESSION['IsKiosk'] = true;
+			$_SESSION['ClientUserMail'] = $user->mail;
+			$rtn = true;
+		}
+		else {
+			$rtn = false;	
+		}
+	}
+	else {   // Not logged in
+		$rtn = false;
+	}
+	
+	return $rtn;
+}
+
+/**
+* Function: volunteer_access
+* Call this function to give your Navigation Menu item General Volunteer access. 
+* Volunteer access means that only Volunteer and above can see it.
+* NOT KIOSK THOUGH!
+*/
+function volunteer_access() {  
+	
+	global $user;
+
+	if ( $user->uid ) {  // Logged in user - and Role is at least SMS Admin or User 1 the site admin
+	
+		$rtn = false;
+		
+		if (in_array('administrator', $user->roles)) {
+			$rtn = true;
+		}
+		else if (in_array('RECY Admin', $user->roles)) {
+			$rtn = true;
+		}	
+		else if (in_array('Volunteer', $user->roles)) {
+			$rtn = true;
+		}
+		else {
+			$rtn = false;	
+		}
+	}
+	else {   // Not logged in
+		$rtn = false;
+	}
+	
+	return $rtn;
+}
+
+
+/**
+* Display output
+*/
+function volunteer_tracker_custom_module_output() {
+	header('Content-type: text/plain; charset=UTF-8');
+	header('Content-Disposition: inline');
+	  	  
+	$rtn_val = '<table width=\'100&%\'>';
+	$rtn_val .= '<tr>' . '<td>' . ' Recyclery Custom Module' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' custom module: volunteer_tracker ' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' User Accounts:' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' &nbsp;&nbsp;&nbsp; mchase - Site Admin' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' &nbsp;&nbsp;&nbsp; Kiosk' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' &nbsp;&nbsp;&nbsp; bchase - RECY Admin' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' Roles: RECY Admin, Kiosk, General Volunteer, Youth Volunteer, Board Member, ' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . ' DB Tables: ' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp; TABLE: volunteer_remote_access ' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp; COLUMNS:' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerRemoteAccessID (PK)' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerID (FK to volunteers table)' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; RemoteAccessCode (8 digit code)' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; StartDateTime' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; EndDateTime' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp; TABLE: volunteer_hours ' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp; COLUMNS:' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerHoursID (PK)' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerID (FK to volunteers table)' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; StartDateTime' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; EndDateTime' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp; TABLE: volunteers' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp; COLUMNS:' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerID (PK)' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerName' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerPhone' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; VolunteerEmail' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; RoleID - Default value of 3 = Anonymous user rolled' . '</td>' . '</tr>';
+	$rtn_val .= '<tr>' . '<td>' . '&nbsp;&nbsp;&nbsp; ActiveFlag (Boolean)' . '</td>' . '</tr>'; 
+	$rtn_val .= '</table>';
+	
+	return $rtn_val;
+}
+
+//Function: display_volunteers_List
+// Read the database table volunteers and display the table data on the screen
+// within the Drupal framework.
+//
+function display_volunteers_List( ) {
+	 
+	 header('Content-type: text/plain; charset=UTF-8');
+	 header('Content-Disposition: inline');
+
+	 $header = array('VolunteerID', 'VolunteerName', 'PHONE', 'Email', 'RoleID', 'Role', 'Active' );
+	 $rows = array();
+
+	 $rtn_val = '<table width=\'100&%\'>';
+	 $rtn_val .= '<caption>VOLUNTEERS</caption>';
+	 $rtn_val .= '<tr>';
+	 
+	 foreach ($header as $key ) {
+ 	     $rtn_val .= '<th>' . $key . '</th>';
+	 }
+	 $rtn_val .= '</tr>';
+
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+	$results = $query
+ 	     ->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerPhone', 'ProviderID', 'ActiveFlag' ))
+  	     ->execute();
+     
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$VolunteerName = $record['VolunteerName'];
+	 	$VolunteerPhone = $record['VolunteerPhone'];
+		$ProviderID = $record['ProviderID'];
+	    $ActiveFlag = $record['ActiveFlag'];
+		   		   
+		//The SQL Select statement using db_select
+		//  
+		$query = db_select('users', 'u')->orderBy('name', 'ASC');
+		$query->join('users_roles', 'ur', 'ur.uid = u.uid');
+					   	
+		$userResults = $query
+			->fields('u', array( 'name', 'mail'))
+			->fields('ur', array('uid', 'rid'))	
+			->condition('name', $VolunteerName,'=')
+			->execute();
+
+		$userName = "";
+		$roleID = 0;
+		$role = "";
+		$email = "";
+				
+		while($userRecord = $userResults->fetchAssoc()) { 
+			
+			$userName = $userRecord['name'];
+			$roleID = $userRecord['rid'];
+			$email = $userRecord['mail'];
+			
+			//drupal_set_message("$userName $email  $roleID");
+			
+			if ( $userName == $VolunteerName) {
+		
+				$email = $userRecord['mail'];
+				
+				//The SQL Select statement using db_select
+				//  
+				$roleQuery = db_select('role', 'r');
+				
+				$roleResults = $roleQuery
+					->fields('r', array( 'name'))
+					->condition('rid', $roleID, '=')
+					->execute();
+		
+				while($roleRecord = $roleResults->fetchAssoc()) { 
+					
+					$role = $roleRecord['name'];
+					//drupal_set_message("$role");
+					break;
+				}
+			}
+		}
+				
+		$rtn_val .= '<tr>';	        	
+		$rtn_val .= '<td>' . $VolunteerID .'</td>';
+		$rtn_val .= '<td>' . $VolunteerName .'</td>';
+		$rtn_val .= '<td>' . $VolunteerPhone .'</td>';
+		$rtn_val .= '<td>' . $email .'</td>';
+		$rtn_val .= '<td>' . $roleID .'</td>';
+		$rtn_val .= '<td>' . $role .'</td>';
+		
+		if ( $ActiveFlag > 0 ) {
+			$rtn_val .= '<td>' . 'Yes' .'</td>';
+		}
+		else {
+			$rtn_val .= '<td>' . 'No' .'</td>';
+		}
+		$rtn_val .= '</tr>';	     
+	}
+		
+	$rtn_val .= '</table>';	 
+	 		
+	return $rtn_val;
+
+	 
+}
+
+/*
+//Function: display_volunteers
+// Read the database table volunteers and display the table data on the screen
+// within the Drupal framework.
+//
+function display_volunteers( ) {
+	 
+	 header('Content-type: text/plain; charset=UTF-8');
+	 header('Content-Disposition: inline');
+
+	 $header = array('VolunteerID', 'VolunteerName', 'VolunteerPhone', 'VolunteerEmail', 'RoleID', 'Is Active');
+	 $rows = array();
+
+	 $rtn_val = '<table width=\'100&%\'>';
+	 $rtn_val .= '<caption>VOLUNTEERS</caption>';
+	 $rtn_val .= '<tr>';
+	 
+	 foreach ($header as $key ) {
+ 	     $rtn_val .= '<th>' . $key . '</th>';
+	 }
+	 $rtn_val .= '</tr>';
+
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+	$results = $query
+ 	     ->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerPhone', 'VolunteerEmail', 'RoleID', 'ActiveFlag'))
+  	     ->execute();
+     
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$VolunteerName = $record['VolunteerName'];
+	 	$VolunteerPhone = $record['VolunteerPhone'];
+	 	$VolunteerEmail = $record['VolunteerEmail'];
+		$RoleID = $record['RoleID'];
+	    $ActiveFlag = $record['ActiveFlag'];
+		        
+		$rtn_val .= '<tr>';	        	
+		$rtn_val .= '<td>' . $VolunteerID .'</td>';
+		$rtn_val .= '<td>' . $VolunteerName .'</td>';
+		$rtn_val .= '<td>' . $VolunteerPhone .'</td>';
+		$rtn_val .= '<td>' . $VolunteerEmail .'</td>';
+		$rtn_val .= '<td>' . $RoleID .'</td>';
+		
+		if ( $ActiveFlag > 0 ) {
+			$rtn_val .= '<td>' . 'Yes' .'</td>';
+		}
+		else {
+			$rtn_val .= '<td>' . 'No' .'</td>';
+		}
+		$rtn_val .= '</tr>';	     
+	}
+		
+	$rtn_val .= '</table>';	 
+	 		
+	return $rtn_val;
+}
+*/
+
+//Function: display_volunteer_hours
+// Read the database table volunteer hours and display the table data on the screen
+// within the Drupal framework.
+//
+function display_volunteer_hours( ) {
+	 
+	 header('Content-type: text/plain; charset=UTF-8');
+	 header('Content-Disposition: inline');
+
+	 $header = array('VolunteerHoursID', 'VolunteerID', 'VolunteerName', 'StartDateTime', 'EndDateTime', 'Hours:Min:Sec');
+	 $rows = array();
+
+	 $rtn_val = '<table width=\'100&%\'>';
+	 $rtn_val .= '<caption>VOLUNTEER HOURS</caption>';
+	 $rtn_val .= '<tr>';
+	 
+	 foreach ($header as $key ) {
+ 	     $rtn_val .= '<th>' . $key . '</th>';
+	 }
+	 $rtn_val .= '</tr>';
+
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	//$query = db_select('volunteer_hours', 'vh')->orderBy('VolunteerID', 'ASC');
+	$query = db_select('volunteer_hours', 'vh');
+	$results = $query
+ 	     ->fields('vh', array('VolunteerHoursID', 'VolunteerID', 'StartDateTime', 'EndDateTime', ))
+ 	     ->orderBy('StartDateTime', 'DESC')
+ 	     ->orderBy('VolunteerID', 'ASC')
+  	     ->execute();
+     
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$VolunteerHoursID = $record['VolunteerHoursID'];
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$startDateTime = $record['StartDateTime'];
+	 	$endDateTime = $record['EndDateTime'];
+
+		$StartDateTime = new DateTime($startDateTime);
+		$EndDateTime = new DateTime($endDateTime);
+
+		$interval = $StartDateTime->diff($EndDateTime);
+		$interval_hms = $interval->format('%H:%I:%S');
+		
+		//Lookup volunteer name using volunteerID
+		//
+		$VolunteerName = get_volunteer_name_using_volunteer_id($VolunteerID );
+        
+		$rtn_val .= '<tr>';	        	
+		$rtn_val .= '<td>' . $VolunteerHoursID .'</td>';
+		$rtn_val .= '<td>' . $VolunteerID .'</td>';
+		$rtn_val .= '<td>' . $VolunteerName .'</td>';
+		$rtn_val .= '<td>' . $startDateTime .'</td>';
+		$rtn_val .= '<td>' . $endDateTime .'</td>';
+		
+	    if ( IsNullOrEmptyString($endDateTime)) {
+			$rtn_val .= '<td>' . '' .'</td>';
+        }
+        else {
+        	$rtn_val .= '<td>' . $interval_hms .'</td>';
+        }
+        
+		$rtn_val .= '</tr>';	     
+	}
+		
+	$rtn_val .= '</table>';	 
+	 		
+	return $rtn_val;
+}
+
+//Function: get_shop_role_names_and_ids
+//
+//
+function get_shop_role_names_and_ids( &$shop_role_array ) {
+  
+	$shop_role_array = array();
+  
+  	//Clear out session vars on Find 
+	//
+	$_SESSION['RECY Admin'] = 0;
+	$_SESSION['General Volunteer'] = 0;
+	$_SESSION['Youth Volunteer'] = 0;
+	$_SESSION['Board Member'] = 0;
+		
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	$query = db_select('role', 'r')->orderBy('rid', 'ASC');
+	$results = $query
+ 	     ->fields('r', array('rid', 'name', 'weight'))
+  	     ->execute();
+     
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$rid = $record['rid'];
+	 	$name = $record['name'];
+	 	$weigh = $record['weight'];
+
+		if(strtolower($name) == strtolower("RECY Admin")) {
+			$_SESSION['RECY Admin'] = $rid;
+			$shop_role_array[$rid] = $name;
+		}
+		elseif ( strtolower($name) == strtolower("General Volunteer")) {
+			$_SESSION['General Volunteer'] = $rid;
+			$shop_role_array[$rid] = $name;
+		}		
+		elseif ( strtolower($name) == strtolower("Youth Volunteer")) {
+			$_SESSION['Youth Volunteer'] = $rid;
+			$shop_role_array[$rid] = $name;
+		}
+		elseif ( strtolower($name) == strtolower("Board Member")) {
+			$_SESSION['Board Member'] = $rid;
+			$shop_role_array[$rid] = $name;
+		}
+		else {
+			$shop_role_array[$rid] = $name;  //want to make sure you can not select role <= 3
+		}
+    }
+}
+
+
+
+//  ***** ADD VOLUNTEER ********
+// *********START FORM CODE ********
+//
+
+// Function overrides Drupal API hook_form
+//  Call this function to display the form used to add new volunteer info.
+//
+function add_volunteer_form($form, &$form_state) {
+
+	//Get SMS Provider Info
+	//
+	$sms_provider_dropdown = "";
+	get_sms_provider_info($sms_provider_array);
+
+	//Get Volunteer Info
+	//
+	$shop_role_dropdown = "";
+	get_shop_role_names_and_ids($shop_role_array);
+	
+	$role_options_array = array('RECY Admin', 'General Volunteer', 'Youth Volunteer', 'Board Member');
+	$_SESSION['Role Options Array'] = $role_options_array;
+	
+	$form['volunteerName'] = array(
+	'#type' => 'textfield',
+	'#title' => 'Volunteer Name?',
+	'#size' => 70,
+	'#maxlength' => 250,
+	'#required' => TRUE, //make this field required
+	);
+	
+	$form['volunteerPhone'] = array(
+	'#type' => 'textfield',
+	'#title' => '10 digit Phone Number?',
+	'#size' => 10,
+	'#maxlength' => 10,
+	'#required' => FALSE, //make this field required
+	);
+
+	$form['smsProvider'] = array(
+	'#title' => t('SMS Provider'),
+	'#type' => 'select',
+	'#description' => 'Select the cellular provider.',
+	'#options' => $sms_provider_array,
+	'#required' => FALSE,
+	);
+		         	
+	$form['volunteerEmail'] = array(
+	'#type' => 'textfield',
+	'#title' => 'Volunteer Email Address?',
+	'#size' => 70,
+	'#maxlength' => 250,
+	'#required' => TRUE, //make this field required
+	);
+	
+	$password = geneate_a_unique_password();
+	
+	$form['volunteerPassword'] = array(
+	'#type' => 'textfield',
+	'#title' => 'Volunteer Password',
+	'#size' => 20,
+	'#maxlength' => 20,
+	'#required' => TRUE, //make this field required
+	'#value' => $password,
+	);
+	
+	$typeOptions = array('RECY Admin' => 'RECY Admin', 'General Volunteer' => 'General Volunteer',
+        'Youth Volunteer' => 'Youth Volunteer', 'Board Member' => 'Board Member' );
+    $form['roleIDS'] = array(
+          '#type' => 'select',
+          '#options' => $typeOptions,
+          '#default_value' => 'General Volunteer',
+          '#title' =>  t('Volunteer Type'),
+		  '#required' => TRUE, //make this field required
+          );
+
+	$form ['selectbox'] = array(
+	    '#type' => 'select',
+	    '#title' => t('Send welcome Email and link message?'),
+		'#required' => TRUE, //make this field required
+	    '#options' => array(
+	      0 => 'No',
+	      1 => 'Yes',
+	      ),
+	      '#description' => t('Choose an option.')
+		  
+	   );
+
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Click Here!'),
+	);
+	
+	return $form;
+}
+
+// Function: add_volunteer_form_validate
+//  This funciton validates the add new volunteer form.
+//  Is displays errors to the screen.
+//  If no errors, it calls a funciotn to insert the volunteer data into the database.
+//  Validate funcitons are called automatically.
+//
+function add_volunteer_form_validate($form, &$form_state) {
+  
+  	$formError = false;
+  	
+	$volunteerName = $form_state['values']['volunteerName'];
+	if (! strlen($volunteerName) > 0 ) {
+		form_set_error('volunteerName', t('Volunteer Name is required.'));
+		$formError = true;
+	}
+	
+	$volunteerPhone= $form_state['values']['volunteerPhone'];
+	if ( strlen($volunteerPhone) > 0 ) {
+	
+		if ( ! is_numeric( $volunteerPhone ) ) {
+			form_set_error('volunteerPhone', t('Please enter Volunteer Phone as a 10 digit number.'));
+			$formError = true;
+		}  
+	
+		if (strlen($volunteerPhone) != 10 ) {
+			form_set_error('volunteerPhone', t('Please enter Volunteer Phone as a 10 digit number.'));
+			$formError = true;
+		}
+	}
+	
+	//This is how you get the vaue of the selected SMS Provider Dropdown control
+	//
+	$providerID = $form_state['values']['smsProvider'];
+
+	
+	//This is how you get the vaue of the selected SMS Provider Dropdown control
+	// Note - we do not want a role ID of less that or equal to 3,
+	// wheihc is the rid of the site administrator
+	//
+	$roleID = $form_state['values']['roleIDS'];
+	
+	drupal_set_message( " RoleID:  $roleID  ");
+	
+	//if ($roleID <= 3  ) {
+		if (strlen($roleID) <= 0 ) {
+	   form_set_error('roleIDS', t('Please select a shop Role'));
+	   $formError = true;
+	}
+	
+	//$role_options_array = $_SESSION['Role Options Array'];
+	
+	$role = get_role_name_from_roles_table( $roleID );
+		
+	//drupal_set_message( "AFTER CALL to get_role: $role");
+
+	$volunteerEmail= $form_state['values']['volunteerEmail'];
+	
+	if (! strlen($volunteerEmail) > 0 ) {
+	   form_set_error('volunteerEmail', t('Volunteer Email is required.'));
+	   $formError = true;
+	}
+	
+	if (filter_var($volunteerEmail, FILTER_VALIDATE_EMAIL) === false) {
+	     form_set_error('volunteerEmail', t('Volunteer Email is not valid.'));
+	     $formError = true;
+	}
+	
+	//Call function to check for duplicate, an already exiting record with this cell #
+	//
+	//$duplicateFlag = check_for_duplicate_cell_number( $volunteerPhone );
+	
+	//if ($duplicateFlag == true) {
+	//     form_set_error('volunteerPhone', t('volunteer Phone already exists in the system.'));
+	//     $formError = true;
+	//}
+	
+	$password = $form_state['values']['volunteerPassword'];
+	
+	if ( $formError != true ) {	
+	   //Call a function to Insert volunteer data into db table
+	   //	  
+	  
+		$password = geneate_a_unique_password();
+	
+		insert_user_and_volunteer_records( $volunteerName, $volunteerPhone, $providerID, $volunteerEmail, $role, $roleID, $password );
+	  
+		//This is how you get the selected Active Flag vlaue from the form.
+		//
+		$sendEmailFlagValue = $form_state['values']['selectbox'];
+	  	
+		if ( $sendEmailFlagValue == 1 ) {
+			format_and_send_welcome_email( $volunteerName, $volunteerPhone, $providerID, $volunteerEmail, $role, $roleID, $password );
+		}
+	}
+}
+
+
+//Function: send_welcome_email
+// send_welcome_email
+//
+function format_and_send_welcome_email($volunteerName, $volunteerPhone, $providerID, $volunteerEmail, $roleID, $role, $password) {
+
+	$msgSubject = t('Thanks for registering with us');
+
+	//$url_page = 'http://cms-freelancers.com/recyclerycm1';
+	//page the link will request
+	//$text = 'this is a simple string';    
+	//$id = '4334%3434';        
+	//$linktext = "<Clickit> & you will see it";	
+	
+	$url = "http://cms-freelancers.com/recyclerycm1/";
+	//$url .= rawurlencode($url_page);
+	//$url .= "?text=" . urlencode($text);
+	//$url .= "&id=" . urlencode($id);
+	
+	
+  	$msg =  t("Dear $volunteerName \r\n");
+    $msg .= t("Thanks for registering with us. ");
+	$msg .= "\r\n";
+	$msg .= $url;
+	$msg .= "\r\n";
+	$msg .= "User Name: $volunteerName \r\n";
+	$msg .= "Phone: $volunteerPhone \r\n";
+	$msg .= "Email: $volunteerEmail \r\n";
+	$msg .= "Role: $role \r\n";
+	$msg .= "Password: $password \r\n";
+    $msg .= t('Please disregard this email if this is not you.');
+	
+	send_an_email($volunteerName, $volunteerEmail, $volunteerPhone, $msg, $msgSubject);
+}
+
+
+//Function: send_an_email
+// This funciton sends a validation email, when you add a new volunteer
+//
+function send_an_email($volunteerName, $volunteerEmail, $volunteerPhone, $message, $subject) {
+    
+ 	$rtn = "";
+	$to = $volunteerEmail;
+	
+	$header = "From:admin@mikehchase54.net \r\n";
+	$retval = mail ($to, $subject, $message, $header);
+	
+	if( $retval == true )  {
+	 
+	  drupal_set_message(t('Client email sent successfully'));
+	}
+	else {
+	  //$rtn = "Message could not be sent...";
+	  drupal_set_message(t("Client email could not be sent."));
+	}
+
+}
+
+
+// Add a Drupal user record to the database
+//
+//
+/*
+function add_drupal_site_user_account( $username, $email, $roleID, $role, $password ) {
+	
+	$new_user = array(
+		'name' => $username,
+		'pass' => $password,
+		'mail' => $email,
+		'signature_format' => 'full_html',
+		'status' => 1,
+		'timezone' => 'America/Chicago',
+		'init' => $email,
+		'roles' => array(2 => 'authenticated user', $roleID => $role),
+	);
+
+	$account = user_save(NULL, $new_user);	
+	
+	return $account;
+}
+*/
+
+function geneate_a_unique_password() {
+	
+	// Characters to use for the password
+	$str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+=_,!@$#*%<>[]{}";
+ 
+	// Desired length of the password
+	$pwlen = 8;
+ 
+	// Length of the string to take characters from
+	$len = strlen($str);
+ 
+	// RANDOM.ORG - We are pulling our list of random numbers as a 
+	// single request, instead of iterating over each character individually
+	$uri = "http://www.random.org/integers/?";
+	$random = file_get_contents(
+		$uri ."num=$pwlen&min=0&max=".($len-1)."&col=1&base=10&format=plain&rnd=new"
+	);
+	$indexes = explode("\n", $random);
+	array_pop($indexes);
+ 
+	// We now have an array of random indexes which we will use to build our password
+	$pw = '';
+	foreach ($indexes as $int){
+		$pw .= substr($str, $int, 1);
+	}
+ 
+	// Password is stored in `$pw`
+	return $pw;
+}
+
+
+
+function get_role_name_from_roles_table( $roleID ) {
+	
+	$role_name = "";
+	
+	$query = db_select('role', 'r');	
+	$results = $query
+		->fields('r', array('rid', 'name', 'weight' ))
+		->condition('rid', $roleID,'=')	     
+		->execute();
+	  		
+	while($record = $results->fetchAssoc()) {	 		 	
+		
+	 	$role_name = $record['name'];
+	 	break;
+	 }
+
+	return $role_name;	
+	
+}
+
+
+//
+//
+function get_volunteer_name_using_volunteer_id( $volunteerIDIn ) {
+	
+	$VolunteerID = "";
+		
+	$query = db_select('volunteers', 'v');	
+	$results = $query
+		->fields('v', array('VolunteerID', 'VolunteerName' ))
+		->condition('VolunteerID', $volunteerIDIn,'=')	     
+		->execute();
+	  	
+	$duplicateFlag = FALSE;
+		
+	while($record = $results->fetchAssoc()) {	 		 	
+		
+	 	$VolunteerID  = $record['VolunteerName'];
+	 	break;
+	 }	
+	
+	return $VolunteerID;	
+	
+	
+}
+
+
+
+//Function: check_for_duplicate_phone_number 
+//
+//
+function check_for_duplicate_phone_number ($volunteerPhone ) {
+
+	$query = db_select('volunteers', 'v');	
+	$results = $query
+		->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerCell' ))
+		->condition('VolunteerCell', $volunteerCell,'=')	     
+		->execute();
+	  	
+	$duplicateFlag = FALSE;
+		
+	while($record = $results->fetchAssoc()) {	 		 	
+		
+	 	$duplicateFlag = true;
+	 	break;
+	 }
+
+	return $duplicateFlag;
+}
+//
+//  ***** END ADD VOLUNTEER FORM CODE ********
+
+
+//***************** START REMOTE LOGIN FORM *****************
+//  remote_login_form
+//
+function remote_login_form ($form, &$form_state) {
+	
+	$instructionText =  " Please enter your access code to login </br> ";
+
+	$form['some_text'] = array(
+  		'#markup' => $instructionText,
+	);
+	
+	//'#prefix' => '<div class="container-inline">',
+	//'#suffix' => '</div>'
+	
+	$form['remoteAccessCode'] = array(
+	'#type' => 'textfield',
+	'#title' => '8 to 10 character code',
+	'#size' => 10,
+	'#maxlength' => 10,
+	'#required' => TRUE, //make this field required
+	);
+
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Send Access Code'),
+	);
+	
+	return $form;
+}
+
+function remote_login_form_validate ($form, &$form_state) {
+
+	$formError = false;
+	$remoteAccessCode= $form_state['values']['remoteAccessCode'];
+
+	if ( strlen($remoteAccessCode) <= 0 ) {
+		form_set_error('volunteerPhone', t('Please enter your remote access code'));
+		$formError = true;
+	}
+	
+	if ( strlen($remoteAccessCode) > 0 ) {
+		
+		if ( ! is_numeric( $remoteAccessCode ) ) {
+			form_set_error('volunteerPhone', t('INCORRECT CODE. Please re-enter your access code.'));
+			$formError = true;
+		} 
+	}
+
+
+}
+
+function remote_login_form_submit ($form, &$form_state) {
+
+}
+
+//
+//
+//**************** END REMOTE LOGIN FORM **********************
+
+
+//*************** START Volunteer Request Access Code ************
+//
+//
+// Function overrides Drupal API hook_form
+// 
+//
+function request_access_code_form ($form, &$form_state) {
+	
+	$instructionText =  " To receive an access code, </br> ";
+  	$instructionText .=	" enter a mobile phone number or email </br> ";
+  	$instructionText .=	" click the [Send Access code] button </br> ";
+  	$instructionText .=	" and we will send you a link and an access code </br>";
+
+
+	$form['some_text'] = array(
+  		'#markup' => $instructionText,
+	);
+	
+	//'#prefix' => '<div class="container-inline">',
+	//'#suffix' => '</div>'
+	
+	$form['volunteerPhone'] = array(
+	'#type' => 'textfield',
+	'#title' => '10 digit Mobile Phone Number that supports SMS Texts?',
+	'#size' => 10,
+	'#maxlength' => 10,
+	'#required' => FALSE, //make this field required
+	);
+		         	
+	$form['volunteerEmail'] = array(
+	'#type' => 'textfield',
+	'#title' => 'Volunteer Email Address?',
+	'#size' => 70,
+	'#maxlength' => 250,
+	'#required' => FALSE, //make this field required
+	);
+	
+	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Send Access Code'),
+	);
+	
+	return $form;
+}
+
+//Function:  request_access_code_form_validate
+//
+//
+function  request_access_code_form_validate($form, &$form_state) {
+ 	
+	$formError = false;
+	$volunteerPhone= $form_state['values']['volunteerPhone'];
+	$volunteerEmail= $form_state['values']['volunteerEmail'];
+	
+	if ( strlen($volunteerPhone) <= 0  &&  strlen($volunteerEmail) <= 0) {
+		form_set_error('volunteerPhone', t('Please enter a Mobile Phone or an Email address.'));
+		$formError = true;
+	}
+	
+	if ( strlen($volunteerPhone) > 0 ) {
+		
+		if ( ! is_numeric( $volunteerPhone ) ) {
+			form_set_error('volunteerPhone', t('Please enter Volunteer Phone as a 10 digit number.'));
+			$formError = true;
+		} 
+		
+		if (strlen($volunteerPhone) != 10 ) {
+			form_set_error('volunteerPhone', t('Please enter Volunteer Phone as a 10 digit number.'));
+			$formError = true;
+		}		 
+	}
+	
+	if ( strlen($volunteerEmail) > 0) {
+		
+		if (! strlen($volunteerEmail) > 0 ) {
+			form_set_error('volunteerEmail', t('Volunteer Email is required.'));
+	   	 	$formError = true;
+		}
+	
+		if (filter_var($volunteerEmail, FILTER_VALIDATE_EMAIL) === false) {
+	    	form_set_error('volunteerEmail', t('Volunteer Email is not valid.'));	
+	     	$formError = true;
+	     }
+	}
+	
+}
+
+//Function:  request_access_code_form_submit
+//
+//
+function  request_access_code_form_submit($form, &$form_state) {
+ 		
+	$volunteerPhone= $form_state['values']['volunteerPhone'];
+	$volunteerEmail= $form_state['values']['volunteerEmail'];
+
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	// 
+	if ( strlen($volunteerPhone) > 0 ) {
+	
+		$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+		$results = $query
+ 	     	->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerPhone', 'VolunteerEmail'))
+   			->condition('VolunteerPhone', $volunteerPhone,'=')	     
+  	    	 ->execute();
+     }
+ 	 else if ( strlen($volunteerEmail) > 0 ) {
+	
+		$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+		$results = $query
+ 	     	->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerPhone', 'VolunteerEmail'))
+   			->condition('VolunteerEmail', $volunteerEmail,'=')	     
+  	    	 ->execute();
+     }
+    
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	
+	 	$volunteerDBID = $record['VolunteerID'];
+	 	$volunteerDBName = $record['VolunteerName'];
+	 	$volunteerDBPhone = $record['VolunteerPhone'];
+	 	$volunteerDBEmail = $record['VolunteerEmail'];
+	 	
+	 	if ( strlen($volunteerPhone) > 0 ) {
+	 	
+	 		if ( $volunteerPhone == $volunteerDBPhone ) {
+	 			//
+	 			//
+	 			//TODO
+	 			// // $loginURL = "http://cms-freelancers.com/recyclerycm1/remoteaccessform";	
+	 			// (A) Code the ACCESS code procesor + DB Table (.install) x
+	 			// (1) Design the table: x
+	 			// (2) Code to create access code 6 to 8 characters #s & letters
+	 			// (3) Store Access code + VoiID in table
+	 			// (4) Add Send SMS code into system - if client wants it
+	 			// (5) Code Volunteer login form "volunteerLogin"
+	 			//
+	 			drupal_set_message(t('Access code SMS text sent!'));
+	 		}
+	 	}
+	 	else if ( strlen($volunteerEmail) > 0 ) {
+	 		
+	 		if ( $volunteerEmail == $volunteerDBEmail ) {
+	 			//
+	 			//
+	 			// $loginURL = "http://cms-freelancers.com/recyclerycm1/remoteaccessform";
+	 			//TODO - code the ACCESS code procesor + DB Table (.install)
+	 			//
+	 			//
+	 			drupal_set_message(t('Access code Email sent!'));
+	 		}
+	 	}
+	}
+
+}
+
+
+//
+//
+// ***** END Volunteer Request Access Code ********
+
+
+
+// Function for basic field validation
+// present and neither empty nor only white space
+//
+function IsNullOrEmptyString($question){
+    return (!isset($question) || trim($question)==='');
+}
+
+//
+//
+//
+function close_out_orphan_hours_records( $display_result = TRUE) {
+
+	$endDateTime = date('Y-m-d H:i:s');
+	$startDate = date('Y-m-d');
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $startDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+	
+	$num_updated = db_update('volunteer_hours')->isNull('EndDateTime')
+		->fields( array('EndDateTime' => $endDateTime,) )		
+		->condition('StartDateTime', $dateS1, '>=') 
+		->condition('StartDateTime', $dateS2, '<=') 
+		->execute();
+	
+    $rtn_val = '<table width=\'100&%\'>';
+    $rtn_val .= '<tr><td>';
+    $rtn_val .= t('Volunteer Hours table Close Out Orphan Records');
+    $rtn_val .= '</td></tr>'; 
+	
+	if ($num_updated > 0 ) {
+		$rtn_val .= '<tr><td>';
+		$rtn_val .= t('Number of orphan records updated: ');
+		$rtn_val .= $num_updated;
+		$rtn_val .= '</td></tr>';
+   }
+    else {
+ 		$rtn_val .= '<tr><td>';
+		$rtn_val .= t('NO ORPHAN RECORDS FOUND!');
+		$rtn_val .= '</td></tr>';
+    }
+    $rtn_val .= '</table>';
+    
+	return $rtn_val;	
+}
+
+
+//Function: volunteers_truncate_table
+// 
+// 
+function volunteers_truncate_table() {
+
+     $result = db_truncate('volunteers')->execute();
+   	      
+     $rtn_val = '<table width=\'100&%\'>';
+     $rtn_val .= '<tr><td>';
+     $rtn_val .= t('The volunteers table has Been Truncated and is now empty!');
+     $rtn_val .= '</td></tr>';
+     $rtn_val .= '</table>';
+     
+     return $rtn_val;
+}
+
+function volunteer_hours_truncate_table() {
+
+     $result = db_truncate('volunteer_hours')->execute();
+   	      
+     $rtn_val = '<table width=\'100&%\'>';
+     $rtn_val .= '<tr><td>';
+     $rtn_val .= t('The volunteer_hours table has been Truncated and is now empty!');
+     $rtn_val .= '</td></tr>';
+     $rtn_val .= '</table>';
+     
+     return $rtn_val;
+}
+
+//Function: truncate_all_volunteer_data
+// 
+// 
+function truncate_all_volunteer_test_Data( $display_result = TRUE) {
+	
+	//Delete all Druapl DBTable user records for users we have added
+	// using user_delete($uid)
+	// itterate through volunteers table and using VolunteerName, 
+	// delete from user table when user.name = volunteers.VolunteerName
+	//
+	$query = db_select( 'volunteers', 'q')->orderBy('VolunteerName', 'ASC');
+    $query->fields('q', array('VolunteerName'));
+    $results = $query->execute();
+      
+    //Iterating through the query results using fetchAssoc
+    //
+    while($record = $results->fetchAssoc()) {	 		 	
+
+		$VolunteerName = $record['VolunteerName'];      
+		
+		$userQuery = db_select( 'users', 'u');
+		$userQuery->fields('u', array('uid', 'name'));
+		$userResults = $userQuery->execute();
+	
+	    while($userRecord = $userResults->fetchAssoc()) {	 		 	
+			$uid = $userRecord['uid'];
+			$name = $userRecord['name'];
+			
+			if ( $name == $VolunteerName ) {
+				user_delete($uid);
+				break;
+			}
+		}
+	}
+	
+	
+	volunteers_truncate_table();
+	volunteer_hours_truncate_table();
+	
+	if ( $display_result ) {
+	
+      $rtn_val = '<table width=\'100&%\'>';
+      $rtn_val .= '<tr><td>';
+      $rtn_val .= t('The two volunteer tables have Been Truncated and are now empty!');
+      $rtn_val .= '</td></tr>';
+      $rtn_val .= '</table>';
+      
+      return $rtn_val;
+     }
+}
+
+
+//Implementation of hook_permission()
+//
+//
+function volunteer_tracker_permission() {
+  return array(
+    'administer my module' => array(
+      'title' => t('Administer Volunteer Tracker'),
+      'description' => t('Perform administration tasks for  Volunteer Tracker'),
+    ),
+  );
+}
+
+
+// Load Test Data
+//
+//
+//
+function load_all_volunteer_test_data() {
+
+	truncate_all_volunteer_test_Data(FALSE);
+	load_volunteer_test_data();
+	load_volunteer_hours_test_data();
+	
+	$rtn_val = '<table width=\'100&%\'>';
+     $rtn_val .= '<tr><td>';
+     $rtn_val .= t('ALl test data tables trucate and re-loaded');
+     $rtn_val .= '</td></tr>';
+     $rtn_val .= '</table>';
+     
+     return $rtn_val;
+	
+}
+
+function load_volunteer_test_data( ) {
+			
+		$userName = "Mike Smith";
+		$userPhone = "8478786225";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "mqm@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+		
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+		
+		$userName = "Bill Jones";
+		$userPhone = "8878476111";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "mqq@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+
+		$userName = "Zena Grifin";
+		$userPhone = "8478786222";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "mee@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+		
+		$userName = "Zena SMith";
+		$userPhone = "8478785555";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "zsm@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+	
+		$userName = "Bill Veck";
+		$userPhone = "8478781111";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "bvx@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+	
+		$userName = "Lubic Textiler";
+		$userPhone = "8478782311";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "txt@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+	
+
+		$userName = "JIll Twitterer";
+		$userPhone = "8478780111";
+		$providerID = 50;
+		$password = "xxxYYY!!!";
+		$email = "jil@sc.com";
+		$role = "General Volunteer";
+		$roleID = 5;
+
+		insert_user_and_volunteer_records( $userName, $userPhone, $providerID, $email, $role, $roleID, $password );
+
+		
+}
+
+function insert_user_and_volunteer_records ( $userName, $userPhone, $providerID, $email, $role, $roleID, $password ) {
+
+		$nid = db_insert('volunteers')->
+			fields(array( 
+				'VolunteerName' => $userName,    
+				'VolunteerPhone' => $userPhone, 
+				'ProviderID' => $providerID,)
+				)->execute();
+
+		$new_user = array(
+			'name' => $userName,
+			'pass' => $password,
+			'mail' => $email,
+			'signature_format' => 'full_html',
+			'status' => 1,
+			'timezone' => 'America/Chicago',
+			'init' => $email,
+			'roles' => array(2 => 'authenticated user', $roleID => $role),
+		);
+
+		$account = user_save(NULL, $new_user);
+}
+
+function load_volunteer_hours_test_data() {
+
+		$todays_date =  date('Y-m-d H:i:s');
+				
+		// Work Hours for 3 days ago
+		//
+		$startDateTime = date("Y-m-d H:i:s", strtotime("$todays_date - 72 hours")); 
+		$endDateTime1 = date("Y-m-d H:i:s", strtotime("$todays_date - 65 hours"));
+		$endDateTime2 = date("Y-m-d H:i:s", strtotime("$todays_date - 66 hours"));
+		$endDateTime3 = date("Y-m-d H:i:s", strtotime("$todays_date - 67hours"));
+		$endDateTime4 = date("Y-m-d H:i:s", strtotime("$todays_date - 68 hours"));
+		$endDateTime5 = date("Y-m-d H:i:s", strtotime("$todays_date - 69 hours"));
+		$endDateTime6 = date("Y-m-d H:i:s", strtotime("$todays_date - 70 hours"));
+		
+		$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+		$results = $query
+			->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerPhone', 'ProviderID', 'ActiveFlag' ))
+			->execute();
+     
+		//Iterating through the query results using fetchAssoc
+		//
+		$volIDArray = Array();
+		
+		while($record = $results->fetchAssoc()) {	 		 	
+			$VolunteerID = $record['VolunteerID'];
+			array_push($volIDArray, $VolunteerID);
+		}
+			
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[0], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime5,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[1], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime4,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[2], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime3,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[3], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime2,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[4], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime1,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[5], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime1,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[6], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime1,))->execute();
+	
+		// Work Hours for 2 days ago
+		//
+		$startDateTime = date("Y-m-d H:i:s", strtotime("$todays_date - 48 hours")); 
+		$endDateTime1 = date("Y-m-d H:i:s", strtotime("$todays_date - 40 hours"));
+		$endDateTime2 = date("Y-m-d H:i:s", strtotime("$todays_date - 41 hours"));
+		$endDateTime3 = date("Y-m-d H:i:s", strtotime("$todays_date - 42 hours"));
+		$endDateTime4 = date("Y-m-d H:i:s", strtotime("$todays_date - 43 hours"));
+		$endDateTime5 = date("Y-m-d H:i:s", strtotime("$todays_date - 44 hours"));
+		$endDateTime6 = date("Y-m-d H:i:s", strtotime("$todays_date - 44 hours"));
+		
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[0], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime1,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[1], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime2,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[2], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime3,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[3], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime4,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[4], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime5,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[5], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime6,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[5], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime6,))->execute();
+		
+		// Work Hours for 1 day ago
+		//
+		$startDateTime = date("Y-m-d H:i:s", strtotime("$todays_date - 24 hours")); 
+		$endDateTime = date("Y-m-d H:i:s", strtotime("$todays_date - 18 hours"));
+		$endDateTime1 = date("Y-m-d H:i:s", strtotime("$todays_date - 18 hours"));
+		$endDateTime2 = date("Y-m-d H:i:s", strtotime("$todays_date - 19 hours"));
+		$endDateTime3 = date("Y-m-d H:i:s", strtotime("$todays_date - 20 hours"));
+		$endDateTime4 = date("Y-m-d H:i:s", strtotime("$todays_date - 21 hours"));
+		$endDateTime5 = date("Y-m-d H:i:s", strtotime("$todays_date - 22 hours"));
+		$endDateTime6 = date("Y-m-d H:i:s", strtotime("$todays_date - 23 hours"));
+		
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[0], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime3,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[1], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime3,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[2], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime2,))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[3], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime1,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[4], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime6,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[5], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime5,))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[6], 'StartDateTime' => $startDateTime, 'EndDateTime' => $endDateTime4,))->execute();
+
+		//Current day
+		//
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[0], 'StartDateTime' => $todays_date, ))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[1], 'StartDateTime' => $todays_date, ))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[2], 'StartDateTime' => $todays_date, ))->execute();
+		$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[3], 'StartDateTime' => $todays_date, ))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[4], 'StartDateTime' => $todays_date, ))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[5], 'StartDateTime' => $todays_date, ))->execute();
+		//$nid = db_insert('volunteer_hours')->fields(array('VolunteerID' =>$volIDArray[6], 'StartDateTime' => $todays_date, ))->execute();
+	
+		$rtn_val = display_volunteer_hours();
+		
+		return $rtn_val;
+}
+
+// ************** START SMS PROVIDERS FUNCTIONS ************
+//
+//
+
+//Function: get_sms_provider_info
+// This funciotn retrieves the sms provider info from the database table 'sms_providers'
+//
+function get_sms_provider_info(&$sms_provider_array) {
+
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//
+        $sms_provider_array = array();
+	
+		$query = db_select( 'sms_providers', 'q')->orderBy('ProviderName', 'ASC');
+	
+        $query->fields('q', array('ProviderID', 'ProviderName', 'SMSEmail'));
+        $results = $query->execute();
+      
+        //Iterating through the query results using fetchAssoc
+        //
+      	while($record = $results->fetchAssoc()) {	 		 	
+			$ProviderID = $record['ProviderID'];
+			$ProviderName = $record['ProviderName'];
+			$SMSEmail = $record['SMSEmail'];
+   	      
+   	        $sms_provider_array[$ProviderID] = $ProviderName;  	     
+	 }	 
+}
+
+
+
+//Function: display_sms_providers_output
+// Function to display the sms provider informaiton form the database table
+//  sms_providers to the screen within the Drupal framework.
+//
+function display_sms_providers_output( $num_deleted = 0 ) {
+	 
+	 header('Content-type: text/plain; charset=UTF-8');
+	 header('Content-Disposition: inline');
+
+	 $header = array('ProviderID', 'ProviderName', 'SMSEmail');
+	 $rows = array();
+
+	 $rtn_val = '<table width=\'100&%\'>';
+	 $rtn_val .= '<tr>';
+	 
+	 foreach ($header as $key ) {
+ 	     $rtn_val .= '<th>' . $key . '</th>';
+	 }
+	 $rtn_val .= '</tr>';
+	
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//      
+	$query = db_select( 'sms_providers', 'q')->orderBy('ProviderName', 'ASC');
+	
+        $query->fields('q', array('ProviderID', 'ProviderName', 'SMSEmail'));
+        $results = $query->execute();
+      
+        //Iterating through the query results using fetchAssoc
+        //
+      	while($record = $results->fetchAssoc()) {	 		 	
+	 	$ProviderID = $record['ProviderID'];
+	 	$ProviderName = $record['ProviderName'];
+	 	$SMSEmail = $record['SMSEmail'];
+	    
+	    $rtn_val .= '<tr>';	        	
+	    $rtn_val .= '<td>' . $ProviderID .'</td>';
+	    $rtn_val .= '<td>' . $ProviderName .'</td>';
+	    $rtn_val .= '<td>' . $SMSEmail .'</td>';
+	    $rtn_val .= '</tr>';	     
+	 }
+
+	  $rtn_val .= '</table>';	 
+	 
+	  if (isset($num_deleted)) {
+	  	if ( $num_deleted > 0 ) {
+			$rtn_val .= '<table width=\'100&%\'>';
+			$rtn_val .= '<tr>';
+			$rtn_val .= '<td>' . 'Records Deleted:' .'</td>';
+			$rtn_val .= '<td>' . $num_deleted .'</td>';
+			$rtn_val .= '</tr>';
+			$rtn_val .= '</table>';
+    		}
+	  }
+		
+	  return $rtn_val;
+}
+
+//Function: add_sms_provider_form
+// This funciton displays the form to add a new sms provider.
+//
+function add_sms_provider_form($form, &$form_state) {
+
+	 $form['providerName'] = array(
+	    '#type' => 'textfield',
+	    '#title' => 'SMS Provider Name?',
+	    '#size' => 80,
+	    '#maxlength' => 250,
+	    '#required' => TRUE, //make this field required
+	    '#description' => 'Cellular Provider Name.',
+	  );
+	   $form['smsEmail'] = array(
+	    '#type' => 'textfield',
+	    '#title' => 'SMS Email',
+	    '#size' => 80,
+	    '#maxlength' => 250,
+	    '#required' => TRUE, //make this field required
+	    '#description' => 'Do not enter the @ sign.',
+	      
+	  );
+	   $form['submit_button'] = array(
+	    '#type' => 'submit',
+	    '#value' => t('Click Here!'),
+	  );
+	  return $form;
+}
+
+
+//Function: add_sms_provider_form_validate
+//
+//
+function add_sms_provider_form_validate($form, &$form_state) {
+ 	$formError = false;
+ 	
+	$providerName = $form_state['values']['providerName'];
+	if (! strlen($providerName) > 0 ) {
+		form_set_error('providerName', t('Provider Name is required.'));
+		$formError = true;
+	}
+        
+        //Check that the Provider Name is not blank
+        //
+	if ( IsNullOrEmptyString($providerName) ) {
+		form_set_error('providerName', t('A non-empty Provider Name is required.'));
+		$formError = true;
+	}	
+
+	$smsEmail = $form_state['values']['smsEmail'];
+	if (! strlen($smsEmail) > 0 ) {
+		form_set_error('smsEmail', t('smsEmail is required.'));
+		$formError = true;
+	}
+	
+	//Check that the smsEmail is not blank
+        //
+	if ( IsNullOrEmptyString($smsEmail) ) {
+		form_set_error('smsEmail', t('A non-empty SMS Email is required.'));
+		$formError = true;
+	}	
+
+	//Truncate then call function to Insert data into db table
+	//
+	$providerName = trim( $providerName );
+	$smsEmail = trim( $smsEmail );
+	
+	//Call function to insert into SMS providers table
+	//
+	if ( $formError != true ) {
+		insert_sms_provider( $providerName, $smsEmail);
+	}
+}
+
+//Functon: insert_sms_provider
+//
+function insert_sms_provider( $providerName, $smsEmail ) {
+     
+	 $nid = db_insert('sms_providers') 
+	 ->fields(array( 
+		'ProviderName' => $providerName,
+		'SMSEmail' => $smsEmail,
+	  ))
+	  ->execute(); 
+}
+
+//
+//
+//// ************** END SMS PROVIDERS FUNCTIONS ************
+

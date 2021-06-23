@@ -1,0 +1,1665 @@
+<?php
+
+/**
+ * @file
+ * volunteer_reports - volunteer_reports
+ * VERSION: 6.0 
+ * Last Update Date: 11-14-2015 3:45 PM
+ * By [Mike Chase]
+ * Please install and enable these modules:
+ * Dependencies:
+ *  (1) Date Module : http://ftp.drupal.org/files/projects/date-7.x-2.9.tar.gz
+		Enable: Date, Date API, Date Popup, Date Tools
+ */
+
+/**
+ * Implements hook_help();
+ */
+function volunteer_reports_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#volunteer_reports': {
+      $rtn_val = '<h3>' . t('About') . '</h3>';
+      $rtn_val .= '<p>' . t('Volunteer Reports. Volunteer reports.') . '</p>';
+      return $rtn_val;
+      break;
+    }
+  }
+}
+
+// Implements hook_menu();
+//
+//
+function volunteer_reports_menu(){
+	
+	$items = array();
+ 	$i = 30;
+ 	 
+	//All Volunteer Work Hours report  - REPORT #1
+ 	//  
+ 	$items['work_hours_report_1_form'] = array(
+	    'title'         	=> t('All Volunteer Work Hours Report'),
+		'description' 		=> 'All Volunteer Work Hours Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('work_hours_report_1_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);
+	
+	//all_volunteer_total_hours_display_form
+	//
+ 	$items['all_volunteer_total_hours_display_form'] = array(
+	    'title'         	=> t('All Volunteer Work Hours Display Report'),
+		'description' 		=> 'All Volunteer Work Hours Display Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('all_volunteer_total_hours_display_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);
+		
+	//Top Volunteer Work Hours report  - REPORT #2
+ 	//  
+ 	$items['work_hours_report_2_form'] = array(
+	    'title'         	=> t('Top Volunteer Work Hours Report'),
+		'description' 		=> 'Top Volunteer Work Hours Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('work_hours_report_2_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);
+	
+	//top_volunteer_total_hours_display_form
+	//
+ 	$items['top_volunteer_total_hours_display_form'] = array(
+	    'title'         	=> t('Top Volunteer Work Hours Display Report'),
+		'description' 		=> 'Top Volunteer Work Hours Display Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('top_volunteer_total_hours_display_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);	
+	
+	//Drop Off Volunteer report - REPORT #3
+ 	//  
+ 	$items['work_hours_report_3_form'] = array(
+	    'title'         	=> t('Drop Off Volunteer Report'),
+		'description' 		=> 'Drop Off Volunteer Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('work_hours_report_3_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);
+	
+	//drop_off_volunteer_display_form
+	//
+ 	$items['drop_off_volunteer_display_form'] = array(
+	    'title'         	=> t('Drop Off Volunteer Display Report'),
+		'description' 		=> 'Drop Off Volunteer Display Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('drop_off_volunteer_display_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);	
+	
+	//Drop Off Zero Time report - REPORT #4
+ 	//  
+ 	$items['work_hours_report_4_form'] = array(
+	    'title'         	=> t('Drop Off Zero Time Report'),
+		'description' 		=> 'Drop Off Zero Time Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('work_hours_report_4_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);
+	
+	//drop_off_zero_time_display_form
+	//
+ 	$items['drop_off_zero_time_display_form'] = array(
+	    'title'         	=> t('Drop Off Zero Time Display Report'),
+		'description' 		=> 'Drop Off Zero Time Display Report.',
+		'page callback' 	=> 'drupal_get_form',
+		'page arguments' 	=> array('drop_off_zero_time_display_form'), 
+		'access callback'	=>  'report_access',
+		'weight' => $i++,
+	);	
+	
+	// test_file_save_data
+	//	
+	//$items['test_write_report'] = array(
+	//    'title'            => t('Test write report from custom module'),
+	//    'page callback'    => 'test_file_save_data',
+    //    'access callback'  => 'report_access',
+	//    'access arguments' => array('access content'),
+   //		'weight' => $i++,
+   //	    );		 
+	
+	return $items;
+}
+
+
+/**
+* Function: report_access
+* Call this function to give your Navigation Menu item report access. 
+* Report access means that reports can see it.
+*
+*/
+function report_access() {  
+	
+	global $user;
+
+	$_SESSION['IsReport'] = false;
+	$_SESSION['ClientUserMail'] = '';
+	
+	if ( $user->uid ) {  // Logged in user - and Role is at least Kiosk or User 1 the site admin
+	
+		if (in_array('administrator', $user->roles)) {
+			$rtn = true;
+		}
+		else if (in_array('Reports', $user->roles)) {
+			$rtn = true;
+		}	
+		else if (in_array('Reports', $user->roles)) {
+			$_SESSION['IsReport'] = true;
+			$_SESSION['ClientUserMail'] = $user->mail;
+			$rtn = true;
+		}
+		else {
+			$rtn = false;	
+		}
+	}
+	else {   // Not logged in
+		$rtn = false;
+	}
+	
+	return $rtn;
+}
+
+// ***Start*** All Volunteers Work Hours report
+
+// Function overrides Drupal API hook_form
+//  Call this function to display the form used to add new volunteer info.
+//
+function work_hours_report_1_form($form, &$form_state) {
+
+	// Creating the date/time element starts here
+
+	// Provide a default date in the format YYYY-MM-DD HH:MM:SS.
+	$date = '2008-12-31';
+
+	// For example to record the request time (a timestamp).
+	// $date = format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s');
+
+	// Provide a format using regular PHP format parts (see documentation on php.net).
+	// If you're using a date_select, the format will control the order of the date parts in the selector,
+	// rearrange them any way you like. Parts left out of the format will not be displayed to the user.
+	
+	$format = 'Y-m-d';
+
+	$curDate = date('Y-m');
+	
+	$dtFirst =  date('Y-m-01');
+    $dtLast =  date('Y-m-t'); //last day
+    drupal_set_message(  $dtFirst . " " . $dtLast );
+
+    $date = new DateTime($dtFirst);
+    $date->sub(new DateInterval('P1M'));
+    drupal_set_message(  $date->format('Y-m-01'));
+
+    $dateX = new DateTime($dtLast);
+    $dateX->sub(new DateInterval('P1M'));
+    drupal_set_message(  $dateX->format('Y-m-d'));
+
+    //MHC - How to format the date controls to first and last day of the month
+    //
+    $form['startDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report Start Date"),
+      '#description' => t('Please select the report start date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $date->format('Y-m-01'),
+    );
+    $form['endDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report End Date"),
+      '#description' => t('Please select the report end date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $dateX->format('Y-m-d'),
+    );
+
+	$instructionText =  " <p> Select start and end dates and </br> ";
+  	$instructionText .=	" then press the Run Report button. </br> ";
+
+	$form['some_text'] = array(
+  		'#markup' => $instructionText,
+	);
+	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Run Report'),
+	);
+	
+	return $form;
+}
+
+// Function: add_volunteer_form_validate
+//  This funciton validates the add new volunteer form.
+//  Is displays errors to the screen.
+//  If no errors, it calls a funciotn to insert the volunteer data into the database.
+//  Validate funcitons are called automatically.
+//
+function work_hours_report_1_form_validate($form, &$form_state) {
+  
+	$sd = $form_state['values']['startDate'];
+	//drupal_set_message($sd);
+
+ 	$ed = $form_state['values']['endDate'];
+	//drupal_set_message($ed);
+	
+	//drupal_set_message(t('Time for redirect to report form '));
+
+	$_SESSION['ReportStartDate'] = $sd;
+	$_SESSION['ReportEndDate'] = $ed;
+	
+	
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	$new_node_id = "all_volunteer_total_hours_display_form";
+	$form_state['redirect'] = $new_node_id;	
+	
+	
+}
+
+
+//Function: get_volunteer_hours
+// has to be a redirected to form, so we can display the data.
+//
+//
+function all_volunteer_total_hours_display_form( $form, &$form_state ) {
+	
+	$_SESSION['ReportCSVDataArray'] = "";
+	 	 
+	$startDateIn = $_SESSION['ReportStartDate'];
+	$endDateIn = $_SESSION['ReportEndDate'];
+	
+	if (empty($startDateIn) || empty($endDateIn) ) {
+		drupal_set_message(t('start or end date is empty'));
+		return $form;
+	}
+	
+	$startDate = date($startDateIn);
+	$endDate = date($endDateIn);
+	
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $endDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+  
+  	$dateDifference = $date2->diff($date1);
+  	
+  	$numberOfDays = $dateDifference->d;
+  	
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	$query = db_select('volunteer_hours', 'vh')->isNotNull('EndDateTime');
+	
+	$results = $query
+ 	    ->fields('vh', array('VolunteerHoursID', 'VolunteerID', 'StartDateTime', 'EndDateTime', ))
+ 		->condition('StartDateTime', $dateS1, '>=')
+		->condition('StartDateTime', $dateS2, '<=') 
+	    ->orderBy('StartDateTime', 'DESC')
+ 	    ->orderBy('VolunteerID', 'ASC')
+  	    ->execute();
+     
+ 	$myVolHoursArray = array(); //Associative array to string VolunteerID & hour time
+
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$VolunteerHoursID = $record['VolunteerHoursID'];
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$startDateTime = $record['StartDateTime'];
+	 	$endDateTime = $record['EndDateTime'];
+
+		$StartDateTime = new DateTime($startDateTime);
+		$EndDateTime = new DateTime($endDateTime);
+
+		$interval = $StartDateTime->diff($EndDateTime);
+		$interval_hms = $interval->format('%H:%I:%S');
+		
+		insert_into_array( $myVolHoursArray, $VolunteerID, $interval_hms);
+	}
+ 
+ 	
+ 	$myReportCSVArray = array();
+ 	
+ 	$headerStr  =  'Volunteer' . ',';
+	$headerStr .=  'Email' . ',';
+ 	$headerStr .=  'Total Hours' . ',';
+ 	$headerStr .=  'Start Date' . ',';
+ 	$headerStr .=  'End Date' . ',';
+ 	$headerStr .=  'No. Days' . "\n";
+ 	
+ 	//$myReportCSVArray .= $headerStr;
+ 	array_push( $myReportCSVArray, $headerStr );
+ 		
+	foreach ( $myVolHoursArray as  $volKey => $volValue) {
+
+		$volunteer_name = get_volunteer_name_by_id( $volKey );
+		
+		$volunteer_email = get_volunteer_email_by_name ( $volunteer_name );
+		
+		$insertStr  =  $volunteer_name . ',';
+		$insertStr .=  $volunteer_email . ',';
+		$insertStr .=  $volValue . ',' ;
+		$insertStr .=  $startDateIn . ',';
+		$insertStr .=  $endDateIn . ',';
+		$insertStr .=  $numberOfDays  . "\n";
+		
+		//$myReportCSVArray .= $insertStr;
+		array_push( $myReportCSVArray, $insertStr );
+		
+		//drupal_set_message( $insertStr );
+		
+		$form[$volKey] = array(
+			'#type' => 'textfield',
+			'#title' => $volunteer_name . "  [" . $volunteer_email . "]", //$volKey,
+			'#size' => 70,
+			'#maxlength' => 250,
+			'#required' => TRUE, //make this field required
+			'#default_value' => $volValue,
+		);
+	} 
+	
+	$_SESSION['ReportCSVDataArray'] = $myReportCSVArray;  
+ 		
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Save Report'),
+	);
+	
+	return $form;
+}
+
+//
+function all_volunteer_total_hours_display_form_validate($form, &$form_state) {
+
+	
+}
+
+//
+function all_volunteer_total_hours_display_form_submit($form, &$form_state) {
+	
+	$report_file_name = "AllVolunteerHoursByDateRangeReport";
+	report_to_filesystem( $report_file_name );
+}
+
+//
+// ***END*** All Volunteers Work Hours report
+
+
+// ***Start*** Top Volunteers Work Hours report
+//
+// Function overrides Drupal API hook_form
+//  Call this function to display the form used to add new volunteer info.
+//
+function work_hours_report_2_form($form, &$form_state) {
+
+	// Creating the date/time element starts here
+
+	// Provide a default date in the format YYYY-MM-DD HH:MM:SS.
+	$date = '2008-12-31';
+
+	// For example to record the request time (a timestamp).
+	// $date = format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s');
+
+	// Provide a format using regular PHP format parts (see documentation on php.net).
+	// If you're using a date_select, the format will control the order of the date parts in the selector,
+	// rearrange them any way you like. Parts left out of the format will not be displayed to the user.
+	
+	$format = 'Y-m-d';
+
+	$curDate = date('Y-m');
+	
+	$dtFirst =  date('Y-m-01');
+    $dtLast =  date('Y-m-t'); //last day
+    drupal_set_message(  $dtFirst . " " . $dtLast  );
+
+    $date = new DateTime($dtFirst);
+    $date->sub(new DateInterval('P1M'));
+    drupal_set_message( $date->format('Y-m-01'));
+
+    $dateX = new DateTime($dtLast);
+    $dateX->sub(new DateInterval('P1M'));
+    drupal_set_message(  $dateX->format('Y-m-d'));
+
+    //MHC - How to format the date controls to first and last day of the month
+    //
+    $form['startDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report Start Date"),
+      '#description' => t('Please select the report start date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $date->format('Y-m-01'),
+    );
+    $form['endDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report End Date"),
+      '#description' => t('Please select the report end date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $dateX->format('Y-m-d'),
+    );
+
+	$form['maxNumberToDisplay'] = array(
+	'#type' => 'textfield',
+	'#title' => 'The max number of top hour volunteers to display.',
+	'#size' => 2,
+	'#maxlength' => 10,
+	'#required' => TRUE, //make this field required
+	'#default_value' => 6,
+	);
+	
+	$instructionText =  " <p> Select start end dates, set max number to dispaly and </br> ";
+  	$instructionText .=	" then press the Run Report button. </br> ";
+
+	$form['some_text'] = array(
+  		'#markup' => $instructionText,
+	);
+	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Run Report'),
+	);
+	
+	return $form;
+}
+
+// Function: add_volunteer_form_validate
+//  This funciton validates the add new volunteer form.
+//  Is displays errors to the screen.
+//  If no errors, it calls a funciotn to insert the volunteer data into the database.
+//  Validate funcitons are called automatically.
+//
+function work_hours_report_2_form_validate($form, &$form_state) {
+
+	$formError = false;
+	$maxNumberToDisplay = $form_state['values']['maxNumberToDisplay'];
+	$maxNumberToDisplay = trim($maxNumberToDisplay);
+	
+	if ( strlen($maxNumberToDisplay) <= 0 || strlen($maxNumberToDisplay) > 2 ) {
+		form_set_error('maxNumberToDisplay', t('Please enter a 1 or 2 digit max number to display.'));
+		$formError = true;
+	}
+	
+	if ( strlen($maxNumberToDisplay) > 0 ) {
+		
+		if ( ! is_numeric( $maxNumberToDisplay ) ) {
+			form_set_error('maxNumberToDisplay', t('Please enter a 1 or 2 digit number.'));
+			$formError = true;
+		} 
+ 
+	}
+
+  	//TODO: NEED to add validation of dates
+  	
+  	$sd = $form_state['values']['startDate'];
+ 	$ed = $form_state['values']['endDate'];
+
+	$_SESSION['ReportStartDate'] = $sd;
+	$_SESSION['ReportEndDate'] = $ed;
+	$_SESSION['MaxNumberToDisplay'] = $maxNumberToDisplay;
+	
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	$new_node_id = "top_volunteer_total_hours_display_form";
+	$form_state['redirect'] = $new_node_id;	
+	
+	
+}
+
+
+//Function: get_volunteer_hours
+// has to be a redirected to form, so we can display the data.
+//
+//
+function top_volunteer_total_hours_display_form( $form, &$form_state ) {
+	
+	$maxNumberToDisplay = $_SESSION['MaxNumberToDisplay'];
+	
+	$_SESSION['ReportCSVDataArray'] = "";
+	 	 
+	$startDateIn = $_SESSION['ReportStartDate'];
+	$endDateIn = $_SESSION['ReportEndDate'];
+	
+	if (empty($startDateIn) || empty($endDateIn) ) {
+		drupal_set_message(t('start or end date is empty'));
+		return $form;
+	}
+	
+	$startDate = date($startDateIn);
+	$endDate = date($endDateIn);
+	
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $endDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+  
+  	$dateDifference = $date2->diff($date1);
+  	
+  	$numberOfDays = $dateDifference->d;
+  	
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	$query = db_select('volunteer_hours', 'vh')->isNotNull('EndDateTime');
+	$results = $query
+ 	    ->fields('vh', array('VolunteerHoursID', 'VolunteerID', 'StartDateTime', 'EndDateTime', ))
+ 		->condition('StartDateTime', $dateS1, '>=')
+		->condition('StartDateTime', $dateS2, '<=') 
+	    ->orderBy('StartDateTime', 'DESC')
+ 	    ->orderBy('VolunteerID', 'ASC')
+  	    ->execute();
+     
+ 	$myVolHoursArray = array(); //Associative array to stire VolunteerID & hour time
+
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$VolunteerHoursID = $record['VolunteerHoursID'];
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$startDateTime = $record['StartDateTime'];
+	 	$endDateTime = $record['EndDateTime'];
+
+		$StartDateTime = new DateTime($startDateTime);
+		$EndDateTime = new DateTime($endDateTime);
+
+		$interval = $StartDateTime->diff($EndDateTime);
+		$interval_hms = $interval->format('%H:%I:%S');
+		
+		insert_into_array( $myVolHoursArray, $VolunteerID, $interval_hms);
+	}
+ 
+ 	$mySortReportCSVArray = array();
+ 	$myRestrictedArray = array();
+ 	$myReportCSVArray = array();
+ 	
+ 	$headerStr  =  'Volunteer' . ',';
+	$headerStr .=  'VolunteerEmail' . ',';
+ 	$headerStr .=  'Decimal Mins' . ',';
+ 	$headerStr .=  'Total Hours' . ',';
+ 	$headerStr .=  'Start Date' . ',';
+ 	$headerStr .=  'End Date' . ',';
+ 	$headerStr .=  'No. Days' . "\n";
+ 	
+ 	//$myReportCSVArray .= $headerStr;
+ 	array_push( $myReportCSVArray, $headerStr );
+ 		
+	foreach ( $myVolHoursArray as  $volKey => $volValue) {
+
+		$volunteer_name = get_volunteer_name_by_id( $volKey );
+		
+		$decimalMinutesValue = time_to_decimal($volValue);
+		
+		$volunteer_email = get_volunteer_email_by_name ( $volunteer_name );
+		
+		$insertStr  =  $volunteer_name . ',';
+		$insertStr .=  $volunteer_email . ',';
+		$insertStr .=  $decimalMinutesValue . ',';
+		$insertStr .=  $volValue . ',' ;
+		$insertStr .=  $startDateIn . ',';
+		$insertStr .=  $endDateIn . ',';
+		$insertStr .=  $numberOfDays  . "\n";
+		
+		//$myReportCSVArray .= $insertStr;
+		array_push( $myReportCSVArray, $insertStr );
+				
+		$mySortReportCSVArray[] = array(
+			"volunteerName"=>$volunteer_name, 
+			"volunteerEmail"=>$volunteer_email,
+			"decimalMinutesValue"=>$decimalMinutesValue,
+			"volValue"=>$volValue,
+			"startDateIn"=>$startDateIn,
+			"endDateIn"=>$endDateIn,
+			"numberOfDays"=>$numberOfDays
+			);
+	} 
+
+	usort($mySortReportCSVArray,'decMinutesDescSort');
+
+	$_SESSION['SortReportCSVDataArray'] = $mySortReportCSVArray;
+	
+	$rowCounter = 0;
+	
+	foreach ($mySortReportCSVArray as $row ) {
+			
+		$volunteerName = $row["volunteerName"];
+		$volunteerEmail = $row["volunteerEmail"];
+		$decimalMinutesValue= $row["decimalMinutesValue"];
+		$volValue = $row["volValue"];
+		$startDateIn= $row["startDateIn"];
+		$endDateIn= $row["endDateIn"];
+		$numberOfDays = $row["numberOfDays"];
+		
+		if ( $rowCounter < $maxNumberToDisplay ) {
+			
+			$form[$volunteerName] = array(
+				'#type' => 'textfield',
+				'#title' => $volunteerName . "  [" . $volunteerEmail . "]",
+				'#size' => 100,
+				'#maxlength' => 100,
+				'#required' => FALSE, //make this field required
+				'#default_value' => "Decimal Mins: $decimalMinutesValue \t TIME: $volValue",
+				'#attributes' => array('readonly'=>'readonly','style'=>'background: none repeat scroll 0 0 #EAEAEA;'),							
+				);
+			
+			array_push( $myRestrictedArray, $row );
+			
+			$rowCounter++;	
+				
+		}
+		else {
+			break;
+		}
+				
+	}
+	
+	$headerStuff = array(
+                "volunteerName"=>"volunteerName",
+                "volunteerEmail"=>"volunteerEmail",
+                "decimalMinutesValue"=>"DecimalMinutesValue",
+                "volValue"=>"volValue",
+                "startDateIn"=>"startDateIn",
+                "endDateIn"=>"endDateIn",
+                "numberOfDays"=>"numberOfDays"
+    );
+	
+	array_unshift( $myRestrictedArray, $headerStuff);
+	
+	$_SESSION['ReportCSVDataArray'] = $myReportCSVArray;  
+ 	$_SESSION['SortReportCSVDataArray'] = $myRestrictedArray;  
+ 	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Save Report'),
+	);
+	
+	return $form;
+}
+
+//
+function top_volunteer_total_hours_display_form_validate($form, &$form_state) {
+
+	
+}
+
+//
+function top_volunteer_total_hours_display_form_submit($form, &$form_state) {
+
+	//$mySortReportCSVArray = $_SESSION['SortReportCSVDataArray'];  	
+	//usort($mySortReportCSVArray,'decMinutesDescSort');
+	//$_SESSION['SortReportCSVDataArray'] = $mySortReportCSVArray;
+	
+	$report_file_name = "TopVolunteerHoursByDateRangeReport";
+	sort_report_to_filesystem( $report_file_name );
+}
+
+
+
+
+//
+// ***END*** Top Volunteers Work Hours report
+
+
+
+
+
+// ***Start*** Drop Off Volunteers report REPORT #3
+//
+// Function overrides Drupal API hook_form
+//  Call this function to display the form used to add new volunteer info.
+//
+function work_hours_report_3_form($form, &$form_state) {
+
+	//Clear ou tthe Session Variables and arrays
+	//
+	$_SESSION['SortReportCSVDataArray'] = array();
+	$_SESSION['ReportCSVDataArray'] = array();
+	$_SESSION['MinimumMinuteThreshold'] = 0;
+	$_SESSION['ReportStartDate'] = 0;
+	$_SESSION['ReportEndDate'] = 0;
+	
+	// Creating the date/time element starts here
+
+	// Provide a default date in the format YYYY-MM-DD HH:MM:SS.
+	$date = '2008-12-31';
+
+	// For example to record the request time (a timestamp).
+	// $date = format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s');
+
+	// Provide a format using regular PHP format parts (see documentation on php.net).
+	// If you're using a date_select, the format will control the order of the date parts in the selector,
+	// rearrange them any way you like. Parts left out of the format will not be displayed to the user.
+	
+	$format = 'Y-m-d';
+
+	$curDate = date('Y-m');
+	
+	$dtFirst =  date('Y-m-01');
+    $dtLast =  date('Y-m-t'); //last day
+    drupal_set_message(  $dtFirst . " " . $dtLast  );
+
+    $date = new DateTime($dtFirst);
+    $date->sub(new DateInterval('P1M'));
+    drupal_set_message(  $date->format('Y-m-01'));
+
+    $dateX = new DateTime($dtLast);
+    $dateX->sub(new DateInterval('P1M'));
+    drupal_set_message(  $dateX->format('Y-m-d'));
+
+    //MHC - How to format the date controls to first and last day of the month
+    //
+    $form['startDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report Start Date"),
+      '#description' => t('Please select the report start date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $date->format('Y-m-01'),
+    );
+    $form['endDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report End Date"),
+      '#description' => t('Please select the report end date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $dateX->format('Y-m-d'),
+    );
+	
+	$form['minMinuteThreshold'] = array(
+		'#type' => 'textfield',
+		'#title' => 'The minimum number of minutes worked when processing volunteer time data.',
+		'#size' => 3,
+		'#maxlength' => 10,
+		'#required' => TRUE, //make this field required
+		'#default_value' => 30,
+	);
+	
+
+	$instructionText =  " <p> Select start end dates, set min hour threshold and </br> ";
+  	$instructionText .=	" then press the Run Report button. </br> ";
+
+	$form['some_text'] = array(
+  		'#markup' => $instructionText,
+	);
+	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Run Report'),
+	);
+	
+	return $form;
+}
+
+// Function: add_volunteer_form_validate
+//  This funciton validates the add new volunteer form.
+//  Is displays errors to the screen.
+//  If no errors, it calls a funciotn to insert the volunteer data into the database.
+//  Validate funcitons are called automatically.
+//
+function work_hours_report_3_form_validate($form, &$form_state) {
+  
+	$formError = false;
+	$minMinuteThreshold = $form_state['values']['minMinuteThreshold'];
+	$minMinuteThreshold = trim($minMinuteThreshold);
+	
+	if ( strlen($minMinuteThreshold) <= 0 || strlen($minMinuteThreshold) > 3 ) {
+		form_set_error('minHourThreshold', t('Please enter a 1-3 digit minimum minute threshold.'));
+		$formError = true;
+	}
+	
+	if ( strlen($minMinuteThreshold) > 0 ) {
+		
+		if ( ! is_numeric( $minMinuteThreshold ) ) {
+			form_set_error('minMinuteThreshold', t('Please enter a 1-3 digit minimum minute threshold.'));
+			$formError = true;
+		}
+		else if ( $minMinuteThreshold < 30 ) {
+			form_set_error('minMinuteThreshold', t('Please enter minimum minute threshold of at least 30 minutes'));
+			$formError = true;
+		}
+	}
+	
+	//TODO: Add date validation
+	//
+  
+	$sd = $form_state['values']['startDate'];
+	//drupal_set_message($sd);
+
+ 	$ed = $form_state['values']['endDate'];
+	//drupal_set_message($ed);
+	
+	//drupal_set_message(t('Time for redirect to report form '));
+
+	$_SESSION['MinimumMinuteThreshold'] = 0;
+	$_SESSION['ReportStartDate'] = $sd;
+	$_SESSION['ReportEndDate'] = $ed;
+	
+	
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	if ( $formError != true ) {
+	
+		$_SESSION['MinimumMinuteThreshold'] = $minMinuteThreshold;
+	
+		$new_node_id = "drop_off_volunteer_display_form";
+		$form_state['redirect'] = $new_node_id;	
+	}
+	
+	
+}
+
+//Function: get_volunteer_hours
+// has to be a redirected to form, so we can display the data.
+//
+//
+function drop_off_volunteer_display_form( $form, &$form_state ) {
+	
+	$minMinuteThreshold = $_SESSION['MinimumMinuteThreshold'];
+	
+	$_SESSION['ReportCSVDataArray'] = "";
+	 	 
+	$startDateIn = $_SESSION['ReportStartDate'];
+	$endDateIn = $_SESSION['ReportEndDate'];
+	
+	if (empty($startDateIn) || empty($endDateIn) ) {
+		drupal_set_message(t('start or end date is empty'));
+		return $form;
+	}
+	
+	$startDate = date($startDateIn);
+	$endDate = date($endDateIn);
+	
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $endDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+  
+  	$dateDifference = $date2->diff($date1);
+  	
+  	$numberOfDays = $dateDifference->d;
+  	
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+	$query = db_select('volunteer_hours', 'vh')->isNotNull('EndDateTime');
+	$results = $query
+ 	    ->fields('vh', array('VolunteerHoursID', 'VolunteerID', 'StartDateTime', 'EndDateTime', ))
+ 		->condition('StartDateTime', $dateS1, '>=')
+		->condition('StartDateTime', $dateS2, '<=') 
+	    ->orderBy('StartDateTime', 'DESC')
+ 	    ->orderBy('VolunteerID', 'ASC')
+  	    ->execute();
+     
+ 	$myVolHoursArray = array(); //Associative array to stire VolunteerID & hour time
+
+	//Iterating through the query results using fetchAssoc
+	//
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	
+	 	$VolunteerHoursID = $record['VolunteerHoursID'];
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$startDateTime = $record['StartDateTime'];
+	 	$endDateTime = $record['EndDateTime'];
+
+		//Check for empty end date, and do not use those records
+		//
+		
+		$StartDateTime = new DateTime($startDateTime);
+		$EndDateTime = new DateTime($endDateTime);
+
+		$interval = $StartDateTime->diff($EndDateTime);
+		$interval_hms = $interval->format('%H:%I:%S');
+		
+		insert_into_array( $myVolHoursArray, $VolunteerID, $interval_hms);
+	}
+ 
+ 	$mySortReportCSVArray = array(); 
+	$myRestrictedArray = array();	
+ 	$myReportCSVArray = array();
+ 	
+ 	$headerStr  =  'Volunteer' . ',';
+ 	$headerStr .=  'VolunteerEmail' . ',';
+ 	$headerStr .=  'Decimal Mins' . ',';
+ 	$headerStr .=  'Total Hours' . ',';
+ 	$headerStr .=  'Start Date' . ',';
+ 	$headerStr .=  'End Date' . ',';
+ 	$headerStr .=  'No. Days' . "\n";
+	
+ 	array_push( $myReportCSVArray, $headerStr );
+ 		
+	foreach ( $myVolHoursArray as  $volKey => $volValue) {
+
+		$volunteer_name = get_volunteer_name_by_id( $volKey );
+		
+		$decimaMinutesValue = time_to_decimal($volValue);
+
+		// Email Lookup
+		$volunteer_email = get_volunteer_email_by_name ( $volunteer_name );
+		//drupal_set_message( "email" . $volunteer_email);
+		
+		$insertStr  =  $volunteer_name . ',';
+		$insertStr .=  $volunteer_email . ',';
+		$insertStr .=  $decimaMinutesValue . ',';
+		$insertStr .=  $volValue . ',' ;
+		$insertStr .=  $startDateIn . ',';
+		$insertStr .=  $endDateIn . ',';
+		$insertStr .=  $numberOfDays  . "\n";
+		
+		array_push( $myReportCSVArray, $insertStr );
+				
+		$mySortReportCSVArray[] = array(
+			"volunteerName"=>$volunteer_name, 
+			"volunteerEmail"=>$volunteer_email,
+			"decimalMinutesValue"=>$decimaMinutesValue,
+			"volValue"=>$volValue,
+			"startDateIn"=>$startDateIn,
+			"endDateIn"=>$endDateIn,
+			"numberOfDays"=>$numberOfDays
+			);
+	} 
+
+	usort($mySortReportCSVArray,'decMinutesDescSort');
+
+	$_SESSION['SortReportCSVDataArray'] = $mySortReportCSVArray;
+	
+	
+	
+	foreach ($mySortReportCSVArray as $row ) {
+			
+		$volunteerName = $row["volunteerName"];
+		$volunteerEmail = $row["volunteerEmail"];
+		
+		//drupal_set_message( "email" . $volunteerEmail);
+		
+		$decimalMinutesValue= $row["decimalMinutesValue"];
+		$volValue = $row["volValue"];
+		$startDateIn= $row["startDateIn"];
+		$endDateIn= $row["endDateIn"];
+		$numberOfDays = $row["numberOfDays"];
+		
+		
+		//drupal_set_message( "$volunteerName $decimalMinutesValue $minMinuteThreshold"  );
+		
+		if ( $decimalMinutesValue < $minMinuteThreshold ) {
+			
+			$form[$volunteerName] = array(
+				'#type' => 'textfield',
+				'#title' => $volunteerName . "  [" . $volunteerEmail . "]",
+				'#size' => 100,
+				'#maxlength' => 100,
+				'#required' => FALSE, 
+				'#default_value' => "Decimal Mins: $decimalMinutesValue \t TIME: $volValue",
+				'#attributes' => array('readonly'=>'readonly','style'=>'background: none repeat scroll 0 0 #EAEAEA;'),							
+				);		
+				
+			// make a new line item entry with name and email	
+				
+			// Create a new array and add only the entries that pass the if test 986 to this array.
+			// 
+			/*$myRestrictedArray[] = array(
+                "volunteerName"=>$volunteerName,
+                "volunteerEmail"=>$volunteerEmail,
+                "decimalMinutesValue"=>$decimaMinutesValue,
+                "volValue"=>$volValue,
+                "startDateIn"=>$startDateIn,
+                "endDateIn"=>$endDateIn,
+                "numberOfDays"=>$numberOfDays
+            );
+			*/
+			
+			
+			array_push( $myRestrictedArray, $row );
+		}
+				
+	}
+	
+	 $headerStuff = array(
+                "volunteerName"=>"volunteerName",
+                "volunteerEmail"=>"volunteerEmail",
+                "decimalMinutesValue"=>"DecimalMinutesValue",
+                "volValue"=>"volValue",
+                "startDateIn"=>"startDateIn",
+                "endDateIn"=>"endDateIn",
+                "numberOfDays"=>"numberOfDays"
+                );
+	
+	array_unshift( $myRestrictedArray, $headerStuff);
+	
+	$_SESSION['ReportCSVDataArray'] = $myReportCSVArray;  
+ 	$_SESSION['SortReportCSVDataArray'] = $myRestrictedArray;  //We need to use the filtered array not the entire array. $mySortReportCSVArray; 
+ 	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Save Report'),
+	);
+	
+	return $form;
+
+}
+
+//
+function drop_off_volunteer_display_form_validate($form, &$form_state) {
+
+	
+}
+
+//
+function drop_off_volunteer_display_form_submit($form, &$form_state) {
+	
+	$report_file_name = "DropOffVolunteerByDateRangeReport";
+	sort_report_to_filesystem( $report_file_name );
+}
+
+//
+// *** END Drop Off Volunteers Report  ***
+
+
+
+// ***Start Drop Off Zero Time report REPORT #4  *****
+//
+// Function overrides Drupal API hook_form
+//  Call this function to display the form used to add new volunteer info.
+//
+function work_hours_report_4_form($form, &$form_state) {
+
+	//Clear ou tthe Session Variables and arrays
+	//
+	$_SESSION['SortReportCSVDataArray'] = array();
+	$_SESSION['ReportCSVDataArray'] = array();
+	$_SESSION['MinimumMinuteThreshold'] = 0;
+	$_SESSION['ReportStartDate'] = 0;
+	$_SESSION['ReportEndDate'] = 0;
+	
+	// Creating the date/time element starts here
+
+	// Provide a default date in the format YYYY-MM-DD HH:MM:SS.
+	$date = '2008-12-31';
+
+	// For example to record the request time (a timestamp).
+	// $date = format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s');
+
+	// Provide a format using regular PHP format parts (see documentation on php.net).
+	// If you're using a date_select, the format will control the order of the date parts in the selector,
+	// rearrange them any way you like. Parts left out of the format will not be displayed to the user.
+	
+	$format = 'Y-m-d';
+
+	$curDate = date('Y-m');
+	
+	$dtFirst =  date('Y-m-01');
+    $dtLast =  date('Y-m-t'); //last day
+    drupal_set_message(  $dtFirst . " " . $dtLast  );
+
+    $date = new DateTime($dtFirst);
+    $date->sub(new DateInterval('P1M'));
+    drupal_set_message(  $date->format('Y-m-01'));
+
+    $dateX = new DateTime($dtLast);
+    $dateX->sub(new DateInterval('P1M'));
+    drupal_set_message(  $dateX->format('Y-m-d'));
+
+    //MHC - How to format the date controls to first and last day of the month
+    //
+    $form['startDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report Start Date"),
+      '#description' => t('Please select the report start date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $date->format('Y-m-01'),
+    );
+    $form['endDate'] = array(
+      '#type' => 'date_popup',
+      '#title' => t("Report End Date"),
+      '#description' => t('Please select the report end date'),
+      '#required' => TRUE,
+      '#date_format' => 'Y-m-d',
+      '#attributes' => array('autocomplete' =>'off','readonly' => 'readonly'),
+      '#default_value' => $dateX->format('Y-m-d'),
+    );
+
+	$instructionText =  " <p> Select start end dates, set min hour threshold and </br> ";
+  	$instructionText .=	" then press the Run Report button. </br> ";
+
+	$form['some_text'] = array(
+  		'#markup' => $instructionText,
+	);
+	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Run Report'),
+	);
+	
+	return $form;
+}
+
+// Function: 
+//  
+//  
+//  
+//  
+//
+function work_hours_report_4_form_validate($form, &$form_state) {
+  
+	$formError = false;
+	
+	//TODO: Add date validation
+	//
+  
+	$sd = $form_state['values']['startDate'];
+	//drupal_set_message($sd);
+
+ 	$ed = $form_state['values']['endDate'];
+	//drupal_set_message($ed);
+	
+	//drupal_set_message(t('Time for redirect to report form '));
+
+	$_SESSION['ReportStartDate'] = $sd;
+	$_SESSION['ReportEndDate'] = $ed;
+	
+	
+	//This is the URL of the update sms client form
+	//http://mikehchase54.net/smstest1/?q=update_sms_client_form
+	//Set a var to the node_id and force a redirect
+	//
+	if ( $formError != true ) {
+		
+		$new_node_id = "drop_off_zero_time_display_form";
+		$form_state['redirect'] = $new_node_id;	
+	}
+	
+	
+}
+
+//Function: 
+// 
+function drop_off_zero_time_display_form( $form, &$form_state ) {
+	
+	$_SESSION['ReportCSVDataArray'] = "";
+	 	 
+	$startDateIn = $_SESSION['ReportStartDate'];
+	$endDateIn = $_SESSION['ReportEndDate'];
+	
+	if (empty($startDateIn) || empty($endDateIn) ) {
+		drupal_set_message(t('start or end date is empty'));
+		return $form;
+	}
+	
+	$startDate = date($startDateIn);
+	$endDate = date($endDateIn);
+	
+	$dateR1 = $startDate . ' 00:00:00';
+	$dateR2 = $endDate . ' 23:59:59';
+	
+	$date1 = new DateTime($dateR1);
+	$date2 = new DateTime($dateR2);
+	
+	$dateS1 = $date1->format('Y-m-d H:i:s');
+	$dateS2 = $date2->format('Y-m-d H:i:s');
+  
+  	$dateDifference = $date2->diff($date1);
+  	
+  	$numberOfDays = $dateDifference->d;
+  	
+	//The SQL Select statement using db_select outer left join
+	// 
+		
+	$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+	$query->leftjoin('volunteer_hours', 'h', 'h.VolunteerID = v.VolunteerID');
+		
+	$results = $query
+		->fields('v', array('VolunteerID', 'VolunteerName'))
+		->fields('h', array('StartDateTime', 'EndDateTime'))
+		->execute();
+
+     
+ 	$myReportCSVArray = array(); //Associative array to stire VolunteerID & hour time
+
+	//Iterating through the query results using fetchAssoc
+	// 	
+	
+	$headerStr  =  'Volunteer ID' . ',';
+ 	$headerStr .=  'Volunteer Name' . ',';
+	$headerStr .=  'Email' . ',';
+ 	$headerStr .=  'Start Date' . ',';
+ 	$headerStr .=  'End Date' . "\n";
+ 	
+ 	array_push( $myReportCSVArray, $headerStr );
+ 	
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	
+	 	$volunteerID = $record['VolunteerID'];
+	 	$volunteerName = $record['VolunteerName'];
+	 	$startDateTime = $record['StartDateTime'];
+	 	$endDateTime = $record['EndDateTime'];
+		
+		// Email Lookup
+		$volunteer_email = get_volunteer_email_by_name ( $volunteerName );
+		
+		$insertStr  =  $volunteerID . ',';
+		$insertStr .=  $volunteerName . ',';
+		$insertStr .=  $volunteer_email . ',';
+		$insertStr .=  $startDateIn . ',';
+		$insertStr .=  $endDateIn . "\n";
+		
+		//drupal_set_message( "$volunteerID  $volunteerName $startDateTime" );
+		
+		if ( $startDateTime == "" || $endDateTime = "" ) {
+		
+			array_push( $myReportCSVArray, $insertStr );
+		
+			$form[$volunteerName] = array(
+				'#type' => 'textfield',
+				'#title' => $volunteerName . "  [" . $volunteer_email . "]",
+				'#size' => 100,
+				'#maxlength' => 100,
+				'#required' => FALSE, 
+				'#default_value' => "0 time within date range",
+				'#attributes' => array('readonly'=>'readonly','style'=>'background: none repeat scroll 0 0 #EAEAEA;'),							
+			);	
+		}	
+		
+	}
+ 
+	$_SESSION['ReportCSVDataArray'] = $myReportCSVArray;  
+ 	
+	$form['submit_button'] = array(
+	'#type' => 'submit',
+	'#value' => t('Save Report'),
+	);
+	
+	return $form;
+
+}
+
+//
+function drop_off_zero_time_display_form_validate($form, &$form_state) {
+
+	
+}
+
+//
+function drop_off_zero_time_display_form_submit($form, &$form_state) {
+	
+	$report_file_name = "DropOffZeroTimeByDateRangeReport";
+	report_to_filesystem( $report_file_name );
+}
+
+
+
+//
+// *** END Drop Off Zero Time Report *** 
+
+
+
+
+function sort_report_to_filesystem( $report_file_name ) {
+
+	drupal_set_message("About to write report $report_file_name");
+	
+	if  ( !isset($_SESSION['SortReportCSVDataArray'] ) ) {
+		drupal_set_message("NO DATA TO SAVE");
+	}
+	else {	
+	
+		$mySortReportData = $_SESSION['SortReportCSVDataArray'];  
+		$dateNow = getDatetimeNow();
+	
+		$destination = file_default_scheme() . '://' . $report_file_name . $dateNow . '.csv';
+		
+		drupal_set_message("$destination");
+		
+		$replace = FILE_EXISTS_RENAME;
+		
+		//TODO: covert the associate array to a string with new line characters
+		//Use implode or itterate through
+		// Create new outputString
+		
+		$csvString = "";
+		
+		foreach ($mySortReportData as $row ) {
+			
+			$volunteerName = $row["volunteerName"];
+			$volunteerEmail = $row["volunteerEmail"];
+			$decimalMinutesValue = $row["decimalMinutesValue"];
+			$volValue = $row["volValue"];
+			$startDateIn= $row["startDateIn"];
+			$endDateIn= $row["endDateIn"];
+			$numberOfDays = $row["numberOfDays"];
+			
+			$csvString .= $volunteerName . ','
+				. $volunteerEmail . ','
+				. $decimalMinutesValue . ',' 
+				. $volValue . ','  
+				. $startDateIn . ',' 
+				. $endDateIn . ','  
+				. $numberOfDays . "\n"; 
+		}
+		
+		$file = file_save_data($csvString, $destination, $replace);
+
+		if ( $file == TRUE ) {
+			drupal_set_message("$destination - sort file save success");
+
+			//MHC N#1 - Download sorted files
+			//
+			if (!file_destination($destination, FILE_EXISTS_ERROR)) {
+  				// The file exist
+  				drupal_set_message("File Exists FID: $file->fid UID: $file->uid URI: $file->uri");
+    			
+ 				if($file) {
+     				file_transfer($file->uri, array('Content-disposition' => 'attachment; filename='.$file->filename));
+ 				
+				// clear array
+				
+				}
+  				else {
+    				drupal_set_message("Unable to download file - Access denied");
+ 				 }    			
+			} 
+
+		}
+		else {	
+			drupal_set_message("$destination - sort file save failure");
+		}
+	}
+	
+}
+	
+	
+/*
+function volunteer_reports_file_download($uri) {
+
+  // Check if the file is controlled by the current module.
+  if (!file_prepare_directory($uri)) {
+    $uri = FALSE;
+  }
+  if (strpos(file_uri_target($uri), variable_get('user_picture_path', 'pictures') . '/picture-') === 0) {
+    if (!user_access('access user profiles')) {
+      // Access to the file is denied.
+      return -1;
+    }
+    else {
+      $info = image_get_info($uri);
+      return array('Content-Type' => $info['mime_type']);
+    }
+  }
+}	
+*/
+	
+function report_to_filesystem( $report_file_name ) {
+
+	drupal_set_message("About to write report $report_file_name");
+	
+	if  ( !isset($_SESSION['ReportCSVDataArray'] ) ) {
+		drupal_set_message("NO DATA TO SAVE");
+	}
+	else {	
+	
+		$myReportData = $_SESSION['ReportCSVDataArray'];  
+		$dateNow = getDatetimeNow();
+	
+		$destination = file_default_scheme() . '://' . $report_file_name . $dateNow . '.csv';
+		
+		drupal_set_message("$destination");
+		
+		$replace = FILE_EXISTS_RENAME;
+		
+		$file = file_save_data($myReportData, $destination, $replace);
+
+		if ( $file == TRUE ) {
+			drupal_set_message("$destination - file save success");
+			
+			
+			//MHC N#1 - Dwonload Not sorted reports 
+			//
+			if (!file_destination($destination, FILE_EXISTS_ERROR)) {
+  				// The file exist
+  				drupal_set_message("File Exists FID: $file->fid UID: $file->uid URI: $file->uri");
+    			
+ 				if($file) {
+     				file_transfer($file->uri, array('Content-disposition' => 'attachment; filename='.$file->filename));
+					
+					// Clean out the data array on download.
+					$_SESSION['ReportCSVDataArray'] = '';
+					
+ 				}
+  				else {
+    				drupal_set_message("Unable to download file - Access denied");
+ 				 }    			
+			} 	
+			
+		}
+		else {	
+			drupal_set_message("$destination - file save failure");
+		}
+	}
+	
+}
+
+
+
+function SecondsToMinutes( &$seconds, &$minutes ) {
+	if ( $seconds >= 60 ) {
+		$minutes += floor($seconds / 60);
+		$seconds = ($seconds - $minutes) * 60;
+	}
+}
+
+function MinutesToHours( &$minutes, &$hours ) {
+	 if ( $minutes >= 60 ) {
+		$hours += floor($minutes / 60);
+		$minutes = ($minutes - $hours) * 60;
+	 }
+}
+
+//function HoursToDays(  &$hours, &$days ) {
+//	 $days += floor($hours / 24);
+//	 $hours = ($hours - $days) * 24;
+//}
+
+// Value is hh:mm:ss - where hours can > 24 
+//  so we need an add time function to do the work of
+//   of adding seconds up and mins and pushing hours and mins up when sec > 59
+//   and mins > 59
+//
+function insert_into_array( &$array, $key, $value ) {
+
+    if( array_key_exists($key, $array) ) {
+  
+  		$int1 = $array[$key];
+		$int2 = $value;
+
+		$timeString1 = $int1;
+		$myArray1 = explode(':', $timeString1);
+		$int1Hours = $myArray1[0];
+		$int1Mins = $myArray1[1];
+		$int1Secs = $myArray1[2];
+	
+		$timeString2 = $int2;
+		$myArray2 = explode(':', $timeString2);
+		$int2Hours = $myArray2[0];
+		$int2Mins = $myArray2[1];
+		$int2Secs = $myArray2[2];
+				
+		//drupal_set_message("int1 : $int1 ");
+		//drupal_set_message("int2 : $int2 ");
+		
+		try {	
+					
+			$intSecsTotal = $int1Secs + $int2Secs;	
+			$intMinsTotal = $int1Mins + $int2Mins;
+			$intHoursTotal = $int1Hours + $int2Hours;
+
+			//drupal_set_message("int seconds 1 and 2 and total: $int1Secs  $int2Secs  $intSecsTotal");
+		
+			SecondsToMinutes( $intSecsTotal, $intMinsTotal );
+			MinutesToHours( $intMinsTotal, $intHoursTotal );
+			
+			$intSecsTotalX = str_pad($intSecsTotal, 2, '0', STR_PAD_LEFT);
+			$intMinsTotalX = str_pad($intMinsTotal, 2, '0', STR_PAD_LEFT);
+					
+			$newInterval = $intHoursTotal . ":" . $intMinsTotalX . ":" . $intSecsTotalX;
+			
+			//drupal_set_message("totalInterval : $newInterval");
+				
+			$array[$key] = $newInterval;		
+		}
+		catch (Exception $e)  {
+			drupal_set_message("Exception $e");
+		}
+    }
+	else {
+
+		$array[$key] = $value;
+    }
+}
+
+
+//Function: get_volunteer_name
+// Read the database table volunteers and get the name
+// 
+//
+function get_volunteer_name_by_id( $volunteer_id_in ) {
+	 
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+   	$query = db_select('volunteers', 'v')->orderBy('VolunteerName', 'ASC');
+	$results = $query
+ 	     	->fields('v', array('VolunteerID', 'VolunteerName', 'VolunteerPhone', ))
+   			->condition('VolunteerID', $volunteer_id_in,'=')	     
+  	    	 ->execute();
+     
+	//Iterating through the query results using fetchAssoc
+	//
+	$rtn_val = "";
+	
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$VolunteerID = $record['VolunteerID'];
+	 	$VolunteerName = $record['VolunteerName'];
+	 	$VolunteerPhone = $record['VolunteerPhone'];
+		
+		if ( $VolunteerID > 0 ) {
+			$rtn_val =  $VolunteerName;
+		}
+
+	}
+		
+	return $rtn_val;
+}
+
+function getDatetimeNow() {
+    $tz_object = new DateTimeZone('America/Chicago');
+    $datetime = new DateTime();
+    $datetime->setTimezone($tz_object);
+    //return $datetime->format('Y\-m\-d\ h:i:s');
+    return $datetime->format('Ymdhis');
+}
+
+/**
+ * Convert time into decimal time.
+ * @param string $time The time to convert
+ * @return integer The time as a decimal value.
+ */
+function time_to_decimal($time) {
+    $timeArr = explode(':', $time);
+    $decTime = ($timeArr[0]*60) + ($timeArr[1]) + ($timeArr[2]/60);
+ 
+    return $decTime;
+}
+
+//Covert time to decimal value for sorting
+//
+function decimal_to_time($decimal) {
+    $hours = floor((int)$decimal / 60);
+    $minutes = floor((int)$decimal % 60);
+    $seconds = $decimal - (int)$decimal; 
+    $seconds = round($seconds * 60); 
+ 
+    return str_pad($hours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($minutes, 2, "0", STR_PAD_LEFT) . ":" . str_pad($seconds, 2, "0", STR_PAD_LEFT);
+}
+
+// Sort 
+//
+function decMinutesDescSort($item1,$item2)
+{
+    if ($item1['decimalMinutesValue'] == $item2['decimalMinutesValue']) return 0;
+    return ($item1['decimalMinutesValue'] < $item2['decimalMinutesValue']) ? 1 : -1;
+}
+
+//Function: get_volunteer_email_by_name
+//
+// 
+//
+function get_volunteer_email_by_name( $volunteer_name_in) {
+	 
+	//The SQL Select statement using db_select
+	// the syntax db_select('table name', 'q' ); 
+	//   is the way to do a select *
+	//  
+   	$query = db_select('users', 'u')->orderBy('name', 'ASC');
+	$results = $query
+ 	     	->fields('u', array('name', 'mail' ))
+   			->condition('name', $volunteer_name_in,'=')	     
+  	    	 ->execute();
+     
+	//Iterating through the query results using fetchAssoc
+	//
+	$rtn_val = "";
+	
+    while($record = $results->fetchAssoc()) {	 		 	
+	 	$mail = $record['mail'];
+		
+		if ( strlen($mail) > 0 ) {
+			$rtn_val =  $mail;
+		}
+		else {
+			$rtn_val =  "EMPTY";
+		}
+	}
+		
+	return $rtn_val;
+}
