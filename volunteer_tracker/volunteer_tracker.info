@@ -1,0 +1,4 @@
+name = Volunteer_Tracker
+description = "Volunteer Tracker"
+core = 7.x
+files[] = volunteer_tracker.module

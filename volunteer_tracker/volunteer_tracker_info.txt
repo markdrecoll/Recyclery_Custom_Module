@@ -1,0 +1,44 @@
+
+Recyclery Custom Module
+
+custom module: volunteer_tracker
+
+Roles:
+RECY Admin
+Kiosk
+Adult Volunteer
+Youth Volunteer
+
+DB Tables:
+
+TABLE: volunteer_hours 
+COLUMNS:
+VolunteerHoursID (PK)
+VolunteerID (FK to volunteers table)
+StartDateTime
+EndDateTime
+
+TABLE: volunteers
+COLUMNS:
+VolunteerID (PK)
+VolunteerName
+VolunteerPhone
+VolunteerEmail
+RoleID - Default value of 3 = Anonymous user rolled
+ActiveFlag (Boolean)
+
+TABLE: volunteer_attributes - master list of volunteer attribute questions
+COLUMNS:
+VolunteerAttributeID (PK)
+AttributeName
+AttributeType
+AttributeValue
+
+TABLE: this_volunteer_attributes 
+COLUMNS:
+ThisVolunteerAttributeID (PK)
+VolunteerAttributeID (FK - volunteers_attributes table)
+VolunteerID (FK - volunteers table)
+AttributeName
+AttributeType
+AttributeValue

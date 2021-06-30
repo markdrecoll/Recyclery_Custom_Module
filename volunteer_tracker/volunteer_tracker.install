@@ -1,0 +1,306 @@
+<?php
+	/**
+	 * Implements hook_install()
+	 */
+	function volunteer_tracker_install(){
+	
+		//$nid = db_insert('sms_providers') 
+		//	->fields(array(
+		//	'ProviderName' => 'Alltel',
+		//	'SMSEmail' => 'message.alltel.com',
+		//))
+		//->execute(); 
+
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 1, 'ProviderName' =>'ACS Alaska', 'SMSEmail' => 'msg.acsalaska.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 2,'ProviderName' =>'Alltel','SMSEmail' => 'message.alltel.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 3,'ProviderName' =>'Ameritech',  'SMSEmail' => 'paging.acswireless.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 4,'ProviderName' =>'Arch', 'SMSEmail' => 'archwireless.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 5,'ProviderName' =>'AT&T', 'SMSEmail' => 'txt.att.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 6,'ProviderName' =>'Bell Canada', 'SMSEmail' => 'txt.bellmobility.ca',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 7,'ProviderName' =>'Blue Sky Frog', 'SMSEmail' => 'blueskyfrog.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 8,'ProviderName' =>'Boost', 'SMSEmail' => 'myboostmobile.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 9,'ProviderName' =>'Carolina West', 'SMSEmail' => 'cwwsms.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 10,'ProviderName' =>'Cellular One', 'SMSEmail' => 'mobile.celloneusa.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 11,'ProviderName' =>'Cellular South', 'SMSEmail' => 'csouth1.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 12,'ProviderName' =>'Cincinnati Bell', 'SMSEmail' => 'gocbw.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 13,'ProviderName' =>'Cingular', 'SMSEmail' => 'mobile.mycingular.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 14,'ProviderName' =>'Cingular Blue', 'SMSEmail' => 'mmode.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 15,'ProviderName' =>'Claro', 'SMSEmail' => 'clarotorpedo.com.br',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 16,'ProviderName' =>'Comviq', 'SMSEmail' => 'sms.comviq.se',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 17,'ProviderName' =>'Cricket', 'SMSEmail' => 'mms.mycricket.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 18,'ProviderName' =>'Edge', 'SMSEmail' => 'sms.edgewireless.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 19,'ProviderName' =>'Einstein PCS', 'SMSEmail' => 'einsteinsms.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 20,'ProviderName' =>'Fido', 'SMSEmail' => 'fido.ca',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 21,'ProviderName' =>'Immix', 'SMSEmail' => 'mmixmail.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 22,'ProviderName' =>'Metro PCS', 'SMSEmail' => 'mymetropcs.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 23,'ProviderName' =>'Mobile One', 'SMSEmail' => 'm1.com.sg',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 24,'ProviderName' =>'MTN Africa',  'SMSEmail' => 'sms.co.za',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 25,'ProviderName' =>'Nextel',  'SMSEmail' => 'messaging.nextel.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 26,'ProviderName' =>'Ntelos', 'SMSEmail' => 'pcs.ntelos.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 27,'ProviderName' =>'Optus', 'SMSEmail' => 'optusmobile.com.au',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 28,'ProviderName' =>'Orange', 'SMSEmail' => 'orange.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 29,'ProviderName' =>'Orange Poland', 'SMSEmail' => 'orange.pl',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 30,'ProviderName' =>'Plus Poland', 'SMSEmail' => 'text.plusgsm.pl',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 31,'ProviderName' =>'Qwest', 'SMSEmail' => 'qwestmp.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 32,'ProviderName' =>'Rogers', 'SMSEmail' => 'pcs.rogers.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 33,'ProviderName' =>'Sasktel', 'SMSEmail' => 'pcs.sasktelmobility.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 34,'ProviderName' =>'Smart', 'SMSEmail' => 'mysmart.mymobile.ph',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 35,'ProviderName' =>'Smart Telecom', 'SMSEmail' => 'mysmart.mymobile.ph',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 36,'ProviderName' =>'Southern Linc', 'SMSEmail' => 'page.southernlinc.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 37,'ProviderName' =>'Sprint', 'SMSEmail' => 'messaging.sprintpcs.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 38,'ProviderName' =>'SunCom', 'SMSEmail' => 'tms.suncom.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 39,'ProviderName' =>'Sure West', 'SMSEmail' => 'mobile.surewest.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 40,'ProviderName' =>'SwissCom', 'SMSEmail' => 'bluewin.ch',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 41,'ProviderName' =>'T Mobile', 'SMSEmail' => 'tmomail.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 42,'ProviderName' =>'T Mobile (Ger)', 'SMSEmail' => 'T-D1-SMS.de',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 43,'ProviderName' =>'T Mobile UK', 'SMSEmail' => 't-mobile.uk.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 44,'ProviderName' =>'TBayTel', 'SMSEmail' => 'tbayteltxt.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 45,'ProviderName' =>'Telenor', 'SMSEmail' => 'mobilpost.no',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 46,'ProviderName' =>'Telus', 'SMSEmail' => 'msg.telus.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 47,'ProviderName' =>'Tim', 'SMSEmail' => 'timnet.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 48,'ProviderName' =>'Unicel', 'SMSEmail' => 'utext.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 49,'ProviderName' =>'V Mobile CA', 'SMSEmail' => 'vmobile.ca',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 50,'ProviderName' =>'Verizon', 'SMSEmail' => 'vtext.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 51,'ProviderName' =>'Virgin Mobile', 'SMSEmail' => 'vmobl.com',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 52,'ProviderName' =>'Vodacom Africa', 'SMSEmail' => 'voda.co.za',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 53,'ProviderName' =>'Vodafon', 'SMSEmail' => 'vodafone.net',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 54,'ProviderName' =>'Vodafone Italy', 'SMSEmail' => 'sms.vodafone.it',))->execute();
+		$nid = db_insert('sms_providers')->fields(array('ProviderID' => 55,'ProviderName' =>'WellCom', 'SMSEmail' => 'sms.welcome2well.com',))->execute();
+	
+	
+	}
+
+    /**
+    * Implements hook_schema
+    * TO add a hook_schema override to your Custom module, follow theses instructions:
+    *  (1) use phpMyAdmin to create the table on a test site
+    *  (2) Use the Drupal Schema module (on same test site) to generate the schema
+    *  (3) copy and paste the schema code into this .install file
+    *  (4) Install this moduel on an empty Druapl site to test. 
+	*  (5) Check that the database table gets created when the module is installed and dropped when the module
+    *      is un-installed. 
+    */
+    function volunteer_tracker_schema() {
+
+		$schema['sms_providers'] = array(
+		  'description' => 'SMS Provider Information',
+		  'fields' => array(
+			'ProviderID' => array(
+			  'description' => 'The Primary key yo this table',
+			  'type' => 'serial',
+			  'not null' => TRUE,
+			),
+			'ProviderName' => array(
+			  'description' => 'The name of the cellular provider',
+			  'type' => 'varchar',
+			  'length' => '255',
+			  'not null' => TRUE,
+			),
+			'SMSEmail' => array(
+			  'description' => 'The provider SMS email without the @ symbol',
+			  'type' => 'varchar',
+			  'length' => '255',
+			  'not null' => TRUE,
+			),
+		  ),
+		  'primary key' => array('ProviderID'),
+		);
+
+		$schema['volunteer_remote_access'] = array(	  
+		  'description' => 'Recyclery Volunteer Remote Access',		  
+		  'fields' => array(		
+			'VolunteerRemoteAccessID' => array(
+			  'description' => 'Primary Key to the table as an auto-increment',
+			  'type' => 'serial',
+			  'not null' => TRUE,
+			),
+			'VolunteerID' => array(
+			  'description' => 'Foreign Key to the Volunteers table',
+			  'type' => 'int',
+			  'not null' => TRUE,
+			),
+			'RemoteAccessCode' => array(
+			  'description' => 'RemoteAccessCode',
+			  'type' => 'varchar',
+			  'length' => '8',
+			  'not null' => TRUE,
+			),
+			'StartDateTime' => array(
+			  'description' => 'Start Date Time',
+			  'mysql_type' => 'DATETIME',
+			  'not null' => TRUE,
+			),
+			'EndDateTime' => array(
+			  'description' => 'End Date Time',
+			  'mysql_type' => 'DATETIME',
+			  'not null' => FALSE,
+			),
+		   ),
+		   'primary key' => array('VolunteerRemoteAccessID'),
+		  );
+ 
+
+		$schema['volunteer_hours'] = array(	  
+		  'description' => 'Recyclery Volunteer Hours',		  
+		  'fields' => array(		
+			'VolunteerHoursID' => array(
+			  'description' => 'Primary Key to the table as an auto-increment',
+			  'type' => 'serial',
+			  'not null' => TRUE,
+			),
+			'VolunteerID' => array(
+			  'description' => 'Foreign Key to the Volunteers table',
+			  'type' => 'int',
+			  'not null' => TRUE,
+			),
+			'StartDateTime' => array(
+			  'description' => 'Start Date Time',
+			  'mysql_type' => 'DATETIME',
+			  'not null' => TRUE,
+			),
+			'EndDateTime' => array(
+			  'description' => 'End Date Time',
+			  'mysql_type' => 'DATETIME',
+			  'not null' => FALSE,
+			),
+		   ),
+		   'primary key' => array('VolunteerHoursID'),
+		  );
+ 		
+		$schema['volunteers'] = array(
+		  'description' => 'Recyclery Volunteer Information',
+		  'fields' => array(
+			'VolunteerID' => array(
+			  'description' => 'Primary Key to the table as an auto-increment',
+			  'type' => 'serial',
+			  'not null' => TRUE,
+			),
+			'VolunteerName' => array(
+			  'description' => 'Volunteer Full Name',
+			  'type' => 'varchar',
+			  'length' => '255',
+			  'not null' => TRUE,
+			),
+			'VolunteerPhone' => array(
+			  'description' => 'Volunteers Phone Number - 10 digit number',
+			  'type' => 'varchar',
+			  'length' => '10',
+			  'not null' => TRUE,
+			),
+			'ProviderID' => array(
+			  'description' => 'Mobile Provider ID',
+			  'type' => 'int',
+			  'not null' => TRUE,
+			),		
+		// 11-12-2015 move these next two to the users & users_roles tables
+		// users.uid
+		// users.name
+		// users.pass
+		// users.mail
+		// users_roles.uid
+		// users_roles.rid
+		
+		//	'VolunteerEmail' => array(  
+		//	  'description' => 'TODO: please describe this field!',
+		//	  'type' => 'varchar',
+		//	  'length' => '255',
+		//	  'not null' => FALSE,
+		//	),
+		//	'RoleID' => array(
+		//	  'description' => 'RoleID for volunteer',
+		//	  'type' => 'int',
+		//	  'not null' => TRUE,
+		//	),
+			'ActiveFlag' => array(
+			  'description' => 'TODO: please describe this field!',
+			  'type' => 'int',
+			  'size' => 'tiny',
+			  'not null' => FALSE,
+			),
+		  ),
+		  'primary key' => array('VolunteerID'),
+		  );
+ 
+    return $schema;
+    } 
+
+	function volunteer_tracker_enable() {
+		$newRoles = array('RECY Admin','General Volunteer', 'Youth Volunteer', 'Board Member', 'Kiosk');
+		foreach ($newRoles as $r){
+			if(!user_role_load_by_name($r)){
+				$role = new stdClass();
+				$role->name = $r;
+				user_role_save($role);
+			}
+		}
+	}	
+	 
+    // hook_uninstall() implementation
+    // - this is where you add the database tables to delete on un-install of the 
+    //   custom module
+    //
+    function volunteer_tracker_uninstall(){
+    	node_type_delete('sms_providers');
+    	node_type_delete('volunteer_remote_access');
+		node_type_delete('volunteer_hours');
+        
+		//Code to delete any users in the users table added through this program
+		//
+		delete_added_users( );
+		
+		node_type_delete('volunteers');
+		
+		//delete the roels associated with this module
+		//
+		delete_volunteer_tracker_roles();
+		
+		// Clear the user access cache.
+		drupal_static_reset('user_access');
+		drupal_static_reset('user_role_permissions');
+    } 
+	
+	
+	function delete_added_users( ) {
+	
+		// Delete all Drupal DBTable user records for users we have added
+		// using user_delete($uid)
+		// itterate through volunteers table and using VolunteerName, 
+		// delete from user table when user.name = volunteers.VolunteerName
+		//
+		$query = db_select( 'volunteers', 'q')->orderBy('VolunteerName', 'ASC');
+		$query->fields('q', array('VolunteerName'));
+		$results = $query->execute();
+      
+		//Iterating through the query results using fetchAssoc
+		//
+		while($record = $results->fetchAssoc()) {	 		 	
+
+			$VolunteerName = $record['VolunteerName'];      
+		
+			$userQuery = db_select( 'users', 'u');
+			$userQuery->fields('u', array('uid', 'name'));
+			$userResults = $userQuery->execute();
+	
+			while($userRecord = $userResults->fetchAssoc()) {	 		 	
+				$uid = $userRecord['uid'];
+				$name = $userRecord['name'];
+			
+				if ( $name == $VolunteerName ) {
+					user_delete($uid);
+					break;
+				}
+			}
+		}	
+	}
+	
+	
+	
+    // Delete the roles created for this custom module
+    // 
+	//
+    function delete_volunteer_tracker_roles() {
+		$or = db_or()->condition('name', 'RECY Admin')->condition('name', 'General Volunteer')->condition('name', 'Youth Volunteer')->condition('name', 'Board Member')->condition('name', 'Kiosk');
+		db_delete('role')->condition($or)->execute();
+
+	}
+?>

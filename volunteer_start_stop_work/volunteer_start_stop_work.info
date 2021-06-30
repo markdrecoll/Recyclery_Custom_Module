@@ -1,0 +1,4 @@
+name = Volunteer_Start_Stop_Work
+description = "Volunteer Start Stop Work"
+core = 7.x
+files[] = volunteer_start_stop_work.module
